@@ -1,7 +1,7 @@
 // Снимает магазин с живого сайта на Тильде и складывает в src/data:
 // товары, дерево разделов, посты акций. Картинки качает в public/img и жмёт в webp.
-// Запуск: npm run data          — товары + картинки товаров
-//         npm run data -- --img — только картинки страниц (ссылки tildacdn в src/)
+// Запуск: npm run data          – товары + картинки товаров
+//         npm run data -- --img – только картинки страниц (ссылки tildacdn в src/)
 import { mkdir, writeFile, readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -49,7 +49,7 @@ async function download(url) {
   throw new Error('Не скачалось: ' + url);
 }
 
-/** Картинка → webp нужных ширин. svg и gif — как есть. Возвращает базовое имя. */
+/** Картинка → webp нужных ширин. svg и gif – как есть. Возвращает базовое имя. */
 async function saveImage(url, dir, widths) {
   const name = localName(url);
   const ext = path.extname(new URL(url).pathname).toLowerCase();
