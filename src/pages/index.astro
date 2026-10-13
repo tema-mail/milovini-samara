@@ -1,6 +1,68 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import PinkCta from '../components/PinkCta.astro';
+import Split from '../components/Split.astro';
+import QuizSection from '../components/QuizSection.astro';
+import Reviews from '../components/Reviews.astro';
+import DeliveryCards from '../components/DeliveryCards.astro';
+import Faq from '../components/Faq.astro';
+import FinalCta from '../components/FinalCta.astro';
+import ContactCard from '../components/ContactCard.astro';
+import Catalog from '../islands/Catalog';
+import { products, toCard, inPart, allChips, PART } from '../lib/catalog';
+import faq from '../data/faq.json';
+
+const T = 'https://static.tildacdn.com/';
+const all = products.filter((p) => p.price && p.images.length).map(toCard);
+const popular = products.filter((p) => inPart(p, PART.popular) && p.images.length).map(toCard);
 ---
-<Base title="Milovini Flowers – доставка цветов в Самаре">
-  <div class="container" style="height:3000px;padding-top:40px"><h1 class="h1">Черновик</h1></div>
+<Base title="Доставка цветов в Самаре 24/7 – Milovini Flowers" description="Доставим свежие цветы по Самаре за 60 минут. Букеты и композиции от флористов, фото перед доставкой, гарантия 48 часов, 5% бонусов с каждого заказа.">
+  <PageHero
+    badge="Доставка за 60 минут"
+    title="Доставим свежие цветы с гарантией, по Самаре"
+    accent="за 60 минут"
+    text="Соберём букет для важного повода или просто без повода. Перед доставкой пришлём фото готового заказа на согласование и доставим цветы по Самаре от 60 минут."
+    image={T + 'tild6433-3531-4665-b931-313434373861/image.png'}
+    buttons={[{ label: 'Выбрать букет', href: '/#catalog' }, { label: 'Помогите выбрать', href: '/#Quiz' }]}
+  />
+
+  <section class="section container" id="catalog">
+    <SectionHead title="Каталог" action={{ label: 'Смотреть весь каталог', href: '/catalog', variant: 'pink', flower: true }} />
+    <Catalog client:visible cards={all} chips={allChips()} step={12} />
+  </section>
+
+  <PinkCta
+    badge="Гарантии"
+    title="За что мы отвечаем в каждом заказе"
+    text="Когда вы заказываете цветы для близкого человека, важно быть уверенным не только в том, как будет выглядеть букет, но и в том, как он будет собран и доставлен."
+    image={T + 'tild6538-3264-4266-b231-323966646633/image_27.png'}
+    buttons={[{ label: 'Подробнее', href: '/garantee' }, { label: 'Помогите выбрать', href: '/#Quiz' }]}
+  />
+
+  <Split
+    id="preim"
+    title="Почему Milovini выбирают снова и снова"
+    image={T + 'tild6135-6162-4666-b630-396263663962/Mask_group.png'}
+    html={`<p>Когда хочется порадовать близкого человека, важно не просто заказать цветы – хочется быть уверенным, что всё получится именно так, как вы задумали.</p>
+<p>В Milovini с заказами работают профессиональные флористы. Цветы закупаем напрямую с плантаций Эквадора и Голландии, собираем букеты и композиции, а перед доставкой обязательно отправляем фото готового заказа на согласование.</p>
+<p>Для перевозки используем фирменные транспортировочные сумки. На весь ассортимент действует гарантия качества 48 часов.</p>
+<p>С каждого заказа начисляем <b>5% бонусов</b>, которые можно использовать при следующей покупке.</p>`}
+    buttons={[{ label: 'Выбрать букет', href: '/catalog' }]}
+    social
+  />
+
+  <QuizSection />
+
+  <section class="section container">
+    <SectionHead title="Букеты, которые выбирают чаще всего" sub="Подборка популярных букетов и композиций Milovini" action={{ label: 'Помогите выбрать', href: '/#Quiz' }} />
+    <Catalog client:visible cards={popular} step={8} prices={false} sort={false} />
+  </section>
+
+  <Reviews />
+  <DeliveryCards />
+  <Faq items={faq.home} />
+  <FinalCta />
+  <ContactCard />
 </Base>

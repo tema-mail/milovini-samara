@@ -76,6 +76,9 @@ async function pool(items, n, fn) {
   await Promise.all(Array.from({ length: n }, run));
 }
 
+// Длинное тире владелец запретил – в данных сразу короткое.
+const dump = (v) => JSON.stringify(v, null, 1).replace(/\u2014/g, '\u2013');
+
 const num = (v) => (v === '' || v == null ? null : Math.round(parseFloat(v)));
 
 async function store() {
@@ -109,8 +112,8 @@ async function store() {
     for (const s of p.src) p.images.push(await saveImage(s, 'p', [480, 1000]));
     delete p.src;
   });
-  await writeFile(path.join(DATA, 'products.json'), JSON.stringify(products, null, 1));
-  await writeFile(path.join(DATA, 'parts.json'), JSON.stringify(parts, null, 1));
+  await writeFile(path.join(DATA, 'products.json'), dump(products));
+  await writeFile(path.join(DATA, 'parts.json'), dump(parts));
 
   const f = await getJson(`https://feeds.tildaapi.com/api/getfeed/?feeduid=${FEED}&recid=0&c=${c}&size=50&slice=1&sort%5Bdate%5D=desc&getparts=true`);
   const posts = [];
@@ -121,7 +124,7 @@ async function store() {
       image: p.image ? await saveImage(p.image, 'post', [600, 1200]) : null,
     });
   }
-  await writeFile(path.join(DATA, 'posts.json'), JSON.stringify(posts, null, 1));
+  await writeFile(path.join(DATA, 'posts.json'), dump(posts));
   console.log('постов', posts.length);
 }
 
@@ -138,7 +141,10 @@ async function pageImages() {
   await scan(path.join(ROOT, 'src'));
   const urls = new Set();
   for (const f of files) {
-    for (const m of (await readFile(f, 'utf8')).matchAll(/https:\/\/static\.tildacdn\.com\/[^\s"'`)]+/g)) urls.add(m[0]);
+    const src = await readFile(f, 'utf8');
+    for (const m of src.matchAll(/https:\/\/static\.tildacdn\.com\/[^\s"'`)]+/g)) urls.add(m[0]);
+    // Ссылки, собранные как T + 'tild…/file.png'
+    for (const m of src.matchAll(/['"`](tild[0-9a-f]{4}-[0-9a-f-]+\/[^'"`\s]+)['"`]/g)) urls.add('https://static.tildacdn.com/' + m[1]);
   }
   const mapFile = path.join(DATA, 'images.json');
   const map = existsSync(mapFile) ? JSON.parse(await readFile(mapFile, 'utf8')) : {};

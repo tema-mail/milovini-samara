@@ -1,0 +1,35 @@
+---
+// Плитки разделов каталога в рамке: название + фото букета.
+import SectionHead from './SectionHead.astro';
+import { img } from '../lib/img';
+import { u } from '../lib/url';
+import { CATEGORY_TILES } from '../lib/site';
+const { title, sub, limit = 10, scroll = false } = Astro.props as { title?: string; sub?: string; limit?: number; scroll?: boolean };
+const items = CATEGORY_TILES.slice(0, limit);
+---
+<section class="section">
+  {title && <div class="container"><SectionHead title={title} sub={sub} /></div>}
+  <div class:list={['ct', scroll ? 'ct--scroll hscroll' : 'container ct--grid']}>
+    {items.map((c) => (
+      <a class="ct__tile" href={u(c.href)}>
+        <span class="ct__title">{c.title}</span>
+        <img src={img(c.image, 800)} alt="" loading="lazy" />
+      </a>
+    ))}
+  </div>
+</section>
+<style>
+  .ct--grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .ct--scroll { gap: 20px; padding: 0 max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter))); }
+  .ct--scroll .ct__tile { width: 300px; }
+  .ct__tile { position: relative; display: flex; flex-direction: column; height: 320px; border: 1px solid var(--mauve); border-radius: 20px; overflow: hidden; background: #fff; transition: box-shadow .25s, transform .25s var(--ease); }
+  .ct__tile:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+  .ct__title { padding: 26px 28px 0; font: 400 clamp(22px, 2.4vw, 34px)/1.05 var(--head-font); color: var(--mauve); }
+  .ct__tile img { margin-top: auto; width: 100%; height: 66%; object-fit: contain; object-position: bottom center; }
+  @media (max-width: 1023px) {
+    .ct--grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ct__tile { height: 200px; border-radius: 16px; }
+    .ct--scroll .ct__tile { width: 200px; }
+    .ct__title { padding: 14px 16px 0; font-size: 19px; }
+  }
+</style>

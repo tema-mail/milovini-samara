@@ -1,0 +1,17 @@
+---
+// Лента фотографий со стрелками («Отвечаем за качество цветов»).
+import SectionHead from './SectionHead.astro';
+import { img } from '../lib/img';
+const { title, sub, images } = Astro.props as { title: string; sub?: string; images: string[] };
+---
+<section class="section ps">
+  <div class="container"><SectionHead title={title} sub={sub} /></div>
+  <div class="ps__track hscroll">
+    {images.map((s) => <img src={img(s, 800)} alt="" loading="lazy" />)}
+  </div>
+</section>
+<style>
+  .ps__track { gap: 20px; padding: 0 max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter))); }
+  .ps__track img { width: 335px; height: 420px; object-fit: cover; border-radius: 24px; }
+  @media (max-width: 1023px) { .ps__track { gap: 10px; } .ps__track img { width: 70vw; height: 88vw; max-width: 300px; max-height: 380px; border-radius: 18px; } }
+</style>

@@ -1,0 +1,50 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import CatalogLinks from '../../components/CatalogLinks.astro';
+import QuizSection from '../../components/QuizSection.astro';
+import IconCards from '../../components/IconCards.astro';
+import Faq from '../../components/Faq.astro';
+import FinalCta from '../../components/FinalCta.astro';
+import ContactCard from '../../components/ContactCard.astro';
+import Catalog from '../../islands/Catalog';
+import { products, toCard, inPart, allChips, PART } from '../../lib/catalog';
+import faq from '../../data/faq.json';
+
+const T = 'https://static.tildacdn.com/';
+const all = products.filter((p) => p.price && p.images.length).map(toCard);
+const popular = products.filter((p) => inPart(p, PART.popular) && p.images.length).map(toCard);
+---
+<Base title="Каталог цветов и букетов с доставкой по Самаре – Milovini Flowers" description={`Каталог Milovini: ${all.length} букетов, композиций, роз, шаров и открыток с доставкой по Самаре 24/7. Фото перед доставкой, гарантия 48 часов.`}>
+  <PageHero
+    crumbs={[{ label: 'Главная', href: '/' }, { label: 'Каталог' }]}
+    title="Каталог цветов и букетов Milovini в Самаре"
+    text="Выберите готовый букет или композицию с доставкой по Самаре. В каталоге Milovini – букеты, монобукеты, авторские работы, цветочные композиции. Перед доставкой пришлём фото готового заказа на согласование."
+    image={T + 'tild6161-3931-4964-b330-373237633439/image.png'}
+    buttons={[{ label: 'Выбрать букет', href: '/catalog#list' }, { label: 'Помогите выбрать', href: '/catalog#Quiz' }]}
+    features={['guarantee', 'delivery', 'bonus', 'allday']}
+  />
+  <section class="section container" id="list">
+    <SectionHead title="Каталог" sub={`${all.length} букетов, композиций и подарков`} />
+    <CatalogLinks />
+    <Catalog client:load cards={all} chips={allChips()} step={16} />
+  </section>
+  <section class="section container">
+    <SectionHead title="Букеты, которые выбирают чаще всего" sub="Популярные букеты и композиции Milovini с доставкой по Самаре" />
+    <Catalog client:visible cards={popular} step={8} prices={false} sort={false} />
+  </section>
+  <QuizSection />
+  <IconCards
+    title="Почему выбирают Milovini" center
+    items={[
+      { icon: T + 'tild6562-3039-4537-a430-323237343931/Group_1171274934.svg', title: 'Гарантия качества 48 часов', text: 'Действует на весь ассортимент с момента доставки.' },
+      { icon: T + 'tild6563-3834-4261-b961-646361373732/Group_1171274938.svg', title: 'Фото перед доставкой', text: 'Перед отправкой пришлём фото готового букета или композиции на согласование.' },
+      { icon: T + 'tild3064-6638-4566-a631-383833396232/Group_1171274939.svg', title: 'Доставка по Самаре от 60 минут', text: 'Принимаем и доставляем заказы круглосуточно.' },
+      { icon: T + 'tild6536-3937-4431-b631-356663313938/Group_1171274940.svg', title: 'Прямые закупки цветов', text: 'Работаем с цветами с плантаций Эквадора и Голландии.' },
+    ]}
+  />
+  <Faq items={faq.catalog} />
+  <FinalCta />
+  <ContactCard />
+</Base>

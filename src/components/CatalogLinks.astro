@@ -1,0 +1,13 @@
+---
+// Ссылки на соседние каталоги чипами (как строка кнопок на оригинале). Текущий – выделен.
+import { CATALOGS } from '../lib/site';
+import { u } from '../lib/url';
+const { current } = Astro.props as { current?: string };
+---
+<nav class="cl hscroll-m" aria-label="Разделы каталога">
+  <a class:list={['chip', { 'is-active': !current }]} href={u('/catalog')}>Весь каталог</a>
+  {CATALOGS.map((c) => <a class:list={['chip', { 'is-active': c.slug === current }]} href={u(`/catalog/${c.slug}`)} aria-current={c.slug === current ? 'page' : undefined}>{c.title}</a>)}
+</nav>
+<style>
+  .cl { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+</style>

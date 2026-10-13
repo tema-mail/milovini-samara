@@ -1,0 +1,72 @@
+---
+// Отзывы с Яндекс Карт. id="rev" – на него ведёт пункт меню «Отзывы».
+import SectionHead from './SectionHead.astro';
+import { REVIEWS } from '../data/reviews';
+import { img } from '../lib/img';
+import { SITE } from '../lib/site';
+const { title = 'Нам доверяют\nважные моменты', id = 'rev' } = Astro.props as { title?: string; id?: string };
+---
+<section class="section rv" id={id}>
+  <div class="container">
+    <SectionHead title={title} sub="Отзывы наших покупателей на Яндекс Картах">
+      <div class="rv__side">
+        <a class="rv__rating" href={SITE.yandexReviews} target="_blank" rel="noopener">
+          <span><b>Milovini Flowers</b><small><span class="rv__stars">★★★★★</span> 5.0 на Яндекс Картах</small></span>
+        </a>
+        <div class="rv__nav">
+          <button type="button" class="rv__arrow" data-dir="-1" aria-label="Назад">←</button>
+          <button type="button" class="rv__arrow" data-dir="1" aria-label="Вперёд">→</button>
+        </div>
+      </div>
+    </SectionHead>
+  </div>
+  <div class="rv__track hscroll" data-rv>
+    {REVIEWS.map((r) => (
+      <article class="rv__card">
+        <header class="rv__head">
+          <img class="rv__ava" src={img(r.avatar, 800)} alt="" loading="lazy" width="48" height="48" />
+          <div><p class="rv__name">{r.name}</p><p class="rv__date">{r.date}</p></div>
+          <span class="rv__stars" aria-label="5 из 5">★★★★★</span>
+        </header>
+        <p class="rv__text">{r.text}</p>
+        <div class="rv__photos">{r.photos.map((p) => <img src={img(p, 800)} alt="" loading="lazy" />)}</div>
+        <a class="rv__link" href={r.url} target="_blank" rel="noopener">Оригинал отзыва →</a>
+      </article>
+    ))}
+  </div>
+</section>
+<script>
+  document.querySelectorAll<HTMLElement>('.rv').forEach((sec) => {
+    const track = sec.querySelector<HTMLElement>('[data-rv]');
+    sec.querySelectorAll<HTMLButtonElement>('.rv__arrow').forEach((b) => b.addEventListener('click', () => {
+      const card = track?.querySelector<HTMLElement>('.rv__card');
+      track?.scrollBy({ left: Number(b.dataset.dir) * ((card?.offsetWidth ?? 400) + 20), behavior: 'smooth' });
+    }));
+  });
+</script>
+<style>
+  .rv__side { display: flex; align-items: center; gap: 12px; }
+  .rv__rating { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 14px; }
+  .rv__rating b { display: block; font-size: 15px; color: var(--ink); }
+  .rv__rating small { font-size: 12px; }
+  .rv__stars { color: #f4b400; letter-spacing: 1px; }
+  .rv__nav { display: flex; gap: 10px; }
+  .rv__arrow { width: 52px; height: 52px; border: 1px solid var(--line); border-radius: 14px; background: #fff; font-size: 18px; color: var(--ink); }
+  .rv__arrow:hover { border-color: var(--mauve); color: var(--mauve); }
+  .rv__track { gap: 20px; padding: 0 max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter))); scroll-padding: 0 max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter))); }
+  .rv__card { width: 392px; display: flex; flex-direction: column; gap: 16px; padding: 24px; border: 1px solid var(--mauve); border-radius: 24px; background: #fff; }
+  .rv__head { display: grid; grid-template-columns: 48px 1fr auto; gap: 12px; align-items: center; }
+  .rv__ava { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+  .rv__name { font-weight: 600; color: var(--ink); font-size: 14px; }
+  .rv__date { font-size: 11px; color: var(--muted); }
+  .rv__text { font-size: 14px; line-height: 1.5; flex: 1; }
+  .rv__photos { display: flex; gap: 8px; }
+  .rv__photos img { width: 96px; height: 70px; object-fit: cover; border-radius: 10px; }
+  .rv__link { font-weight: 600; font-size: 13px; color: var(--mauve); }
+  @media (max-width: 1023px) {
+    .rv__side { width: 100%; justify-content: space-between; }
+    .rv__nav { display: none; }
+    .rv__card { width: 84vw; max-width: 360px; padding: 20px; }
+    .rv__track { gap: 12px; }
+  }
+</style>

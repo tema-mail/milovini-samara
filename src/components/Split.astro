@@ -1,0 +1,54 @@
+---
+// Фото слева, текст справа (или наоборот). social – карточка «Приятного выбора» со ссылками на мессенджеры.
+import Btn, { type BtnProps } from './Btn.astro';
+import { img, srcset } from '../lib/img';
+import { SOCIALS } from '../lib/site';
+import { Social } from '../islands/icons';
+const { title, html, image, buttons = [], social = false, reverse = false, id } = Astro.props as {
+  title: string; html: string; image: string; buttons?: BtnProps[]; social?: boolean; reverse?: boolean; id?: string;
+};
+---
+<section class:list={['section container split', { 'split--rev': reverse }]} id={id}>
+  <div class="split__photo reveal"><img src={img(image)} srcset={srcset(image)} sizes="(max-width: 1023px) 100vw, 50vw" alt="" loading="lazy" /></div>
+  <div class="split__body reveal">
+    <h2 class="h2" set:html={title.replace(/\n/g, '<br />')} />
+    <div class="split__html" set:html={html} />
+    {buttons.length > 0 && <div class="split__btns">{buttons.map((b, i) => <Btn {...b} variant={b.variant ?? (i === 0 ? 'pink' : 'outline')} flower={b.flower ?? i === 0} />)}</div>}
+    {social && (
+      <div class="split__social">
+        <div>
+          <p class="split__soc-title">Приятного выбора</p>
+          <p class="split__soc-text">Наша поддержка всегда рядом. Пишите в любой мессенджер – ответим и поможем с выбором.</p>
+        </div>
+        <div class="split__soc-links">{SOCIALS.map((s) => <a href={s.href} target="_blank" rel="noopener" aria-label={s.label}><Social id={s.id} size={18} /></a>)}</div>
+      </div>
+    )}
+  </div>
+</section>
+<style>
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: stretch; }
+  .split--rev .split__photo { order: 2; }
+  .split__photo { border-radius: var(--radius-xl); overflow: hidden; min-height: 560px; background: var(--bg-soft); }
+  .split__photo img { width: 100%; height: 100%; object-fit: cover; }
+  .split__body { display: flex; flex-direction: column; gap: 28px; padding: 8px 0; }
+  .split__html { display: grid; gap: 14px; font-size: 14px; max-width: 520px; }
+  .split__html :global(ul) { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+  .split__html :global(b) { color: var(--ink); font-weight: 600; }
+  .split__btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  .split__social { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 24px; border: 1px solid var(--ink); border-radius: 20px; }
+  .split__soc-title { font: 400 24px/1.2 var(--head-font); color: var(--mauve); }
+  .split__soc-text { font-size: 13px; margin-top: 6px; max-width: 340px; }
+  .split__soc-links { display: grid; grid-template-columns: repeat(2, 42px); gap: 8px; }
+  .split__soc-links a { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--pink); color: var(--mauve); transition: background-color .2s, color .2s; }
+  .split__soc-links a:hover { background: var(--mauve); color: #fff; }
+  @media (max-width: 1023px) {
+    .split { grid-template-columns: 1fr; gap: 24px; }
+    .split--rev .split__photo { order: 0; }
+    .split__photo { min-height: 0; aspect-ratio: 4 / 3.4; }
+    .split__body { gap: 18px; }
+    .split__btns { flex-direction: column; }
+    .split__btns :global(.btn) { width: 100%; }
+    .split__soc-links { grid-template-columns: repeat(4, 42px); }
+    .split__social { flex-direction: column; align-items: flex-start; }
+  }
+</style>

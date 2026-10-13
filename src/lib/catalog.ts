@@ -77,3 +77,22 @@ export const PART = {
 
 /** Допродажа на странице заказа: открытки, игрушки, шары. */
 export const addonParts = [PART.cards, PART.toys, PART.balloons];
+
+/** Чип фильтра для острова Catalog: раздел со всеми подразделами. */
+export interface Chip { id: string; title: string; ids: string[]; children?: Chip[] }
+export function chip(id: string, title?: string, withChildren = true): Chip {
+  const p = partById.get(id)!;
+  return {
+    id, title: title ?? p.title, ids: [...partIds(id)],
+    children: withChildren && p.children.length ? p.children.map((c) => chip(c.id, undefined, false)) : undefined,
+  };
+}
+/** Чипы общего каталога – все разделы магазина, кроме служебного «Популярное». */
+export const allChips = (): Chip[] => parts.filter((p) => p.id !== PART.popular).map((p) => chip(p.id));
+
+/** Товары страницы-каталога: раздел (с подразделами) или совпадение в названии. */
+export function catalogCards(part: string, match?: string): Card[] {
+  return products
+    .filter((p) => p.images.length && p.price && (inPart(p, part) || (match ? p.title.includes(match) : false)))
+    .map(toCard);
+}

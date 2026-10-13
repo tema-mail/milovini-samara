@@ -1,0 +1,24 @@
+---
+import Btn, { type BtnProps } from './Btn.astro';
+const { title, sub, action, center = false, id } = Astro.props as { title: string; sub?: string; action?: BtnProps; center?: boolean; id?: string };
+---
+<div class:list={['sh', { 'sh--center': center }]} id={id}>
+  <div class="sh__text">
+    <h2 class="h2" set:html={title.replace(/\n/g, '<br />')} />
+    {sub && <p class="sh__sub">{sub}</p>}
+  </div>
+  {action && <div class="sh__action"><Btn variant="outline" {...action} /></div>}
+  <slot />
+</div>
+<style>
+  .sh { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 40px; }
+  .sh__text { display: grid; gap: 18px; max-width: 760px; }
+  .sh__sub { font-size: 14px; color: var(--text); max-width: 620px; }
+  .sh--center { justify-content: center; text-align: center; }
+  .sh--center .sh__text { justify-items: center; max-width: 1000px; }
+  @media (max-width: 1023px) {
+    .sh { flex-direction: column; align-items: flex-start; margin-bottom: 24px; gap: 16px; }
+    .sh--center { align-items: center; }
+    .sh__text { gap: 12px; }
+  }
+</style>

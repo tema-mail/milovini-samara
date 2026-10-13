@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import CatalogLinks from '../../components/CatalogLinks.astro';
+import FinalCta from '../../components/FinalCta.astro';
+import ContactCard from '../../components/ContactCard.astro';
+import Catalog from '../../islands/Catalog';
+import { CATALOGS } from '../../lib/site';
+import { catalogCards, chip, partById } from '../../lib/catalog';
+
+export function getStaticPaths() {
+  return CATALOGS.map((c) => ({ params: { slug: c.slug }, props: { c } }));
+}
+const { c } = Astro.props as { c: (typeof CATALOGS)[number] & { match?: string } };
+const cards = catalogCards(c.part, c.match);
+const part = partById.get(c.part);
+// У раздела есть подразделы (Композиции → корзины, коробки) – показываем их чипами.
+const chips = part && part.children.length ? part.children.map((x) => chip(x.id, undefined, false)) : undefined;
+const min = Math.min(...cards.map((x) => x.price));
+const desc = `${c.h1}: ${cards.length} вариантов от ${min.toLocaleString('ru-RU')} ₽. Доставка по Самаре 24/7 от 60 минут, фото перед доставкой, гарантия 48 часов.`;
+---
+<Base title={`${c.h1} – Milovini Flowers`} description={desc}>
+  <PageHero
+    small
+    crumbs={[{ label: 'Главная', href: '/' }, { label: 'Каталог', href: '/catalog' }, { label: c.crumb }]}
+    title={c.h1}
+    text={c.text}
+    image={c.image}
+    buttons={[{ label: 'Смотреть каталог', href: `/catalog/${c.slug}#list` }, { label: 'Помогите выбрать', href: '/#Quiz' }]}
+    features={false}
+  />
+  <section class="section container" id="list">
+    <SectionHead title={c.heading} sub={`С доставкой по Самаре – ${cards.length} шт., от ${min.toLocaleString('ru-RU')} ₽`} />
+    <CatalogLinks current={c.slug} />
+    <Catalog client:load cards={cards} chips={chips} step={16} />
+  </section>
+  <FinalCta />
+  <ContactCard />
+</Base>

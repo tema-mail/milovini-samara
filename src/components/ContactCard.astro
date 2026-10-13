@@ -1,0 +1,43 @@
+---
+// Карточка контактов + карта Яндекса (ленивая загрузка).
+import { SITE, SOCIALS } from '../lib/site';
+import { u } from '../lib/url';
+import { IconFlower, Social } from '../islands/icons';
+---
+<section class="section container cc" id="contacts">
+  <div class="cc__card reveal">
+    <h2 class="cc__title">Milovini Flowers</h2>
+    <dl class="cc__dl">
+      <dt>Телефон</dt><dd><a href={SITE.phoneHref}>{SITE.phone}</a></dd>
+      <dt>Адрес</dt><dd>{SITE.city},<br />{SITE.address}</dd>
+      <dt>Режим работы</dt><dd>{SITE.hours}</dd>
+    </dl>
+    <div class="cc__btns">
+      <a class="btn btn--pink" href={u('/catalog')}>Выбрать букет <IconFlower /></a>
+      {SOCIALS.map((s) => <a class="cc__soc" href={s.href} target="_blank" rel="noopener" aria-label={s.label}><Social id={s.id} size={20} /></a>)}
+    </div>
+  </div>
+  <div class="cc__map reveal">
+    <iframe src="https://yandex.ru/map-widget/v1/?oid=19061492696&z=16" title="Milovini Flowers на Яндекс Картах" loading="lazy" allowfullscreen></iframe>
+  </div>
+</section>
+<style>
+  .cc { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .cc__card { padding: 48px 50px; border-radius: var(--radius-xl); background: var(--bg-soft); display: grid; gap: 28px; }
+  .cc__title { font: 600 clamp(30px, 3.4vw, 48px)/1.1 var(--head-font); color: var(--mauve); }
+  .cc__dl { margin: 0; display: grid; gap: 8px; }
+  .cc__dl dt { font: 600 14px/1 var(--body-font); color: var(--ink); margin-top: 10px; }
+  .cc__dl dd { margin: 0; font: 400 clamp(22px, 2.6vw, 38px)/1.25 var(--body-font); color: var(--text); }
+  .cc__btns { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .cc__soc { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--pink); color: var(--mauve); transition: background-color .2s, color .2s; }
+  .cc__soc:hover { background: var(--mauve); color: #fff; }
+  .cc__map { border-radius: var(--radius-xl); overflow: hidden; background: var(--bg-soft); min-height: 480px; }
+  .cc__map iframe { width: 100%; height: 100%; border: 0; display: block; }
+  @media (max-width: 1023px) {
+    .cc { grid-template-columns: 1fr; }
+    .cc__card { padding: 28px 20px; gap: 18px; }
+    .cc__btns .btn { width: 100%; }
+    .cc__soc { width: 54px; height: 54px; }
+    .cc__map { min-height: 320px; }
+  }
+</style>

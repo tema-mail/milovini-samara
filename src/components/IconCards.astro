@@ -1,0 +1,38 @@
+---
+// Четыре карточки в рамке: иконка, заголовок, текст. Используется для доставки, преимуществ, гарантий.
+import SectionHead from './SectionHead.astro';
+import type { BtnProps } from './Btn.astro';
+import { img } from '../lib/img';
+const { title, sub, action, center = false, items, id } = Astro.props as {
+  title?: string; sub?: string; action?: BtnProps; center?: boolean; id?: string;
+  items: { icon?: string; title: string; text?: string; image?: string }[];
+};
+---
+<section class="section container" id={id}>
+  {title && <SectionHead title={title} sub={sub} action={action} center={center} />}
+  <ul class="ic">
+    {items.map((i) => (
+      <li class="ic__card outline-card reveal">
+        {i.icon && <img class="ic__icon" src={img(i.icon)} alt="" width="50" height="50" loading="lazy" />}
+        <h3 class="h3 ic__title" set:html={i.title.replace(/\n/g, '<br />')} />
+        {i.text && <p class="ic__text" set:html={i.text.replace(/\n/g, '<br />')} />}
+        {i.image && <img class="ic__img" src={img(i.image, 800)} alt="" loading="lazy" />}
+      </li>
+    ))}
+  </ul>
+</section>
+<style>
+  .ic { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .ic__card { display: flex; flex-direction: column; gap: 12px; padding: 28px; min-height: 320px; }
+  .ic__icon { width: 50px; height: 50px; margin-bottom: auto; padding-bottom: 40px; box-sizing: content-box; }
+  .ic__title { font-size: clamp(22px, 2vw, 30px); }
+  .ic__text { font-size: 13.5px; line-height: 1.5; }
+  .ic__img { margin-top: auto; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 14px; }
+  @media (max-width: 1023px) {
+    .ic { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ic__card { min-height: 0; padding: 16px; gap: 8px; border-radius: 16px; }
+    .ic__icon { width: 40px; height: 40px; padding-bottom: 18px; }
+    .ic__title { font-size: 19px; }
+    .ic__text { font-size: 12.5px; }
+  }
+</style>

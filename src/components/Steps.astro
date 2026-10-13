@@ -1,0 +1,28 @@
+---
+// Шаги работы карточками в ленту (корпоративный заказ).
+import SectionHead from './SectionHead.astro';
+import { img } from '../lib/img';
+import { IconFlower } from '../islands/icons';
+const { title, sub, items } = Astro.props as { title: string; sub?: string; items: { icon: string; title: string; text: string }[] };
+---
+<section class="section">
+  <div class="container"><SectionHead title={title} sub={sub} /></div>
+  <ol class="st hscroll">
+    {items.map((i) => (
+      <li class="st__card">
+        <img src={img(i.icon)} alt="" width="40" height="40" loading="lazy" />
+        <h3 class="h3">{i.title}</h3>
+        <p>{i.text}</p>
+        <button type="button" class="btn btn--pink btn--sm" data-lead>Оставить заявку <IconFlower size={16} /></button>
+      </li>
+    ))}
+  </ol>
+</section>
+<style>
+  .st { list-style: none; margin: 0; gap: 20px; padding: 0 max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter))); }
+  .st__card { width: 268px; display: flex; flex-direction: column; gap: 14px; padding: 18px 18px 22px; border: 1px solid var(--mauve); border-radius: 20px; min-height: 320px; }
+  .st__card img { width: 40px; height: 40px; margin-bottom: 26px; }
+  .st__card p { font-size: 12.5px; flex: 1; }
+  .st__card :global(.h3) { font-size: 24px; }
+  @media (max-width: 1023px) { .st { gap: 10px; } .st__card { width: 240px; min-height: 280px; } }
+</style>

@@ -1,0 +1,165 @@
+---
+// Карточка товара – по исходному адресу каждого товара на Тильде (/catalog/tproduct/…, /catalog/byket/tproduct/…, /tproduct/…).
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Reviews from '../components/Reviews.astro';
+import ProductBuy from '../islands/ProductBuy';
+import Catalog from '../islands/Catalog';
+import { products, toCard, partById, addonParts, inPart, rub, type Product } from '../lib/catalog';
+import { CATALOGS, SITE } from '../lib/site';
+import { FREE_FROM } from '../lib/delivery';
+import { u } from '../lib/url';
+
+export function getStaticPaths() {
+  return products.filter((p) => p.price && p.images.length).map((p) => ({ params: { product: p.path.replace(/^\//, '') }, props: { p } }));
+}
+const { p } = Astro.props as { p: Product };
+
+// Хлебная крошка – первая страница-каталог, в которую входит товар.
+const cat = CATALOGS.find((c) => inPart(p, c.part));
+const isAddon = addonParts.some((id) => inPart(p, id));
+const similar = products
+  .filter((x) => x.id !== p.id && x.price && x.images.length && x.parts.some((id) => p.parts.includes(id)))
+  .slice(0, 8).map(toCard);
+const addons = isAddon ? [] : products
+  .filter((x) => x.price && x.images.length && addonParts.some((id) => inPart(x, id)))
+  .slice(0, 12).map(toCard);
+const partNames = p.parts.map((id) => partById.get(id)?.title).filter(Boolean);
+const title = `${p.title} – купить с доставкой по Самаре за ${rub(p.price!)} | Milovini Flowers`;
+const desc = `${p.title}${p.descr ? ': ' + p.descr.toLowerCase() : ''}. ${rub(p.price!)}. Доставка по Самаре 24/7 от 60 минут, фото перед доставкой, гарантия 48 часов.`;
+const ld = {
+  '@context': 'https://schema.org', '@type': 'Product', name: p.title, description: p.descr || p.title,
+  image: p.images.map((i) => new URL(u(i + '-1000.webp'), Astro.site).href), sku: p.id,
+  brand: { '@type': 'Brand', name: SITE.name },
+  offers: { '@type': 'Offer', priceCurrency: 'RUB', price: p.price, availability: 'https://schema.org/InStock', url: new URL(u(p.path), Astro.site).href },
+};
+const buy = { id: p.id, title: p.title, price: p.price!, img: p.images[0], path: p.path, descr: p.descr, stock: p.stock };
+---
+<Base title={title} description={desc} image={u(p.images[0] + '-1000.webp')}>
+  <div class="container pp">
+    <Crumbs items={[{ label: 'Главная', href: '/' }, { label: 'Каталог', href: '/catalog' }, ...(cat ? [{ label: cat.title, href: `/catalog/${cat.slug}` }] : []), { label: p.title }]} />
+    <div class="pp__grid">
+      <div class="pp__gallery">
+        <div class="pp__slides" data-gal>
+          {p.images.map((im, i) => (
+            <img src={u(im + '-1000.webp')} alt={i === 0 ? p.title : `${p.title} – фото ${i + 1}`} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} />
+          ))}
+        </div>
+        {p.mark && <span class="pp__mark">{p.mark}</span>}
+        {p.images.length > 1 && (
+          <div class="pp__thumbs" role="tablist" aria-label="Фото букета">
+            {p.images.map((im, i) => (
+              <button type="button" class:list={['pp__thumb', { 'is-on': i === 0 }]} data-i={i} aria-label={`Фото ${i + 1}`}><img src={u(im + '-480.webp')} alt="" loading="lazy" /></button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div class="pp__info">
+        {partNames.length > 0 && <p class="pp__parts">{partNames.join(' · ')}</p>}
+        <h1 class="pp__title">{p.title}</h1>
+        {p.descr && <p class="pp__descr">{p.descr}</p>}
+        <div class="pp__price">
+          <b>{rub(p.price!)}</b>
+          {p.priceOld && <s>{rub(p.priceOld)}</s>}
+          {p.priceOld && <span class="pp__save">Выгода {rub(p.priceOld - p.price!)}</span>}
+        </div>
+        <ProductBuy client:load p={buy} />
+        <ul class="pp__perks">
+          <li><b>Фото перед доставкой</b><span>Пришлём фото готового букета на согласование</span></li>
+          <li><b>Доставка от 60 минут</b><span>Круглосуточно по Самаре, бесплатно по центру от {FREE_FROM.toLocaleString('ru-RU')} ₽</span></li>
+          <li><b>Гарантия 48 часов</b><span>На свежесть цветов с момента доставки</span></li>
+          <li><b>5% бонусов</b><span>Начислим с заказа на следующую покупку</span></li>
+        </ul>
+        {p.text && (
+          <div class="pp__text">
+            <h2 class="pp__h">Состав и описание</h2>
+            <div set:html={p.text} />
+          </div>
+        )}
+        <p class="pp__help">Нужен другой размер или оттенок? <button type="button" class="link" data-lead>Попросите флориста</button> или позвоните <a href={SITE.phoneHref}>{SITE.phone}</a></p>
+      </div>
+    </div>
+  </div>
+
+  {addons.length > 0 && (
+    <section class="section container">
+      <SectionHead title="Добавьте к букету" sub="Открытка, игрушка или шары – приедут вместе с цветами" />
+      <Catalog client:visible cards={addons} step={4} prices={false} sort={false} />
+    </section>
+  )}
+  {similar.length > 0 && (
+    <section class="section container">
+      <SectionHead title="Похожие букеты" action={cat ? { label: `Весь раздел «${cat.title}»`, href: `/catalog/${cat.slug}` } : { label: 'Весь каталог', href: '/catalog' }} />
+      <Catalog client:visible cards={similar} step={8} prices={false} sort={false} />
+    </section>
+  )}
+  <Reviews id="reviews" />
+  <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+</Base>
+
+<script>
+  // Галерея: лента с прокруткой (свайп на телефоне) + миниатюры.
+  const track = document.querySelector<HTMLElement>('[data-gal]');
+  const thumbs = [...document.querySelectorAll<HTMLButtonElement>('.pp__thumb')];
+  thumbs.forEach((b) => b.addEventListener('click', () => {
+    const i = Number(b.dataset.i);
+    track?.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+  }));
+  track?.addEventListener('scroll', () => {
+    const i = Math.round(track.scrollLeft / track.clientWidth);
+    thumbs.forEach((t, n) => t.classList.toggle('is-on', n === i));
+  }, { passive: true });
+</script>
+
+<style>
+  .pp { padding-top: 24px; }
+  .pp__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 56px; margin-top: 20px; align-items: start; }
+  .pp__gallery { position: sticky; top: 20px; }
+  .pp__slides { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; border-radius: var(--radius-xl); scrollbar-width: none; background: var(--bg-soft); }
+  .pp__slides::-webkit-scrollbar { display: none; }
+  .pp__slides img { flex: none; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; scroll-snap-align: start; }
+  .pp__mark { position: absolute; top: 18px; left: 18px; padding: 8px 12px; border-radius: 999px; background: var(--mauve); color: #fff; font-weight: 600; font-size: 13px; }
+  .pp__thumbs { display: flex; gap: 10px; margin-top: 12px; }
+  .pp__thumb { width: 76px; height: 92px; padding: 0; border: 2px solid transparent; border-radius: 14px; overflow: hidden; background: none; opacity: .65; transition: opacity .2s, border-color .2s; }
+  .pp__thumb.is-on { border-color: var(--mauve); opacity: 1; }
+  .pp__thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .pp__info { display: grid; gap: 18px; }
+  .pp__parts { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--mauve); }
+  .pp__title { font: 400 clamp(30px, 3.4vw, 48px)/1.1 var(--head-font); color: var(--mauve); }
+  .pp__descr { font: 400 16px/1.5 var(--head-font); color: var(--text); }
+  .pp__price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 14px; }
+  .pp__price b { font: 700 32px/1 var(--body-font); color: var(--ink); }
+  .pp__price s { font-size: 18px; color: var(--muted); }
+  .pp__save { padding: 6px 12px; border-radius: 999px; background: var(--pink-soft); color: var(--mauve); font-size: 13px; font-weight: 600; }
+  .pp__perks { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pp__perks li { display: grid; gap: 4px; padding: 14px 16px; border-radius: 16px; background: var(--bg-soft); font-size: 12.5px; line-height: 1.4; }
+  .pp__perks b { color: var(--ink); font-size: 14px; }
+  .pp__text { padding-top: 6px; border-top: 1px solid var(--line); }
+  .pp__h { font: 400 22px/1.2 var(--head-font); color: var(--mauve); margin: 16px 0 10px; }
+  .pp__text :global(div) { font: 400 15px/1.7 var(--head-font); color: var(--ink); }
+  .pp__help { font-size: 13px; }
+  .pp__help a { color: var(--mauve); white-space: nowrap; }
+  :global(.pb) { display: grid; gap: 10px; }
+  :global(.pb__row) { display: flex; gap: 10px; align-items: center; }
+  :global(.qty--lg) { height: 64px; }
+  :global(.qty--lg button) { width: 48px; height: 62px; }
+  :global(.pb__add) { flex: 1; }
+  :global(.pb__fav) { width: 64px; height: 64px; flex: none; border: 1px solid var(--line); border-radius: 50%; background: #fff; display: grid; place-items: center; color: var(--ink); transition: color .2s, border-color .2s; }
+  :global(.pb__fav.is-on) { color: var(--mauve); border-color: var(--mauve); }
+  :global(.pb__note) { font-size: 13px; }
+  @media (max-width: 1023px) {
+    .pp { padding-top: 12px; }
+    .pp__grid { grid-template-columns: 1fr; gap: 20px; margin-top: 12px; }
+    .pp__gallery { position: relative; top: 0; margin: 0 calc(-1 * var(--gutter)); }
+    .pp__slides { border-radius: 0; }
+    .pp__thumbs { padding: 0 var(--gutter); }
+    .pp__thumb { width: 56px; height: 68px; border-radius: 10px; }
+    .pp__price b { font-size: 26px; }
+    .pp__perks { grid-template-columns: 1fr; }
+    :global(.qty--lg) { height: 54px; }
+    :global(.qty--lg button) { width: 40px; height: 52px; }
+    :global(.pb__fav) { width: 54px; height: 54px; }
+  }
+</style>

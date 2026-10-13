@@ -1,0 +1,11 @@
+---
+// Кнопка-пилюля: ссылка или открытие попапа заявки (lead). flower – розовый цветок справа, как на оригинале.
+import { u } from '../lib/url';
+import { IconFlower } from '../islands/icons';
+export interface BtnProps { label: string; href?: string; lead?: boolean; variant?: 'white' | 'pink' | 'mauve' | 'outline'; flower?: boolean; sm?: boolean }
+const { label, href, lead = false, variant = 'white', flower = false, sm = false } = Astro.props as BtnProps;
+const cls = ['btn', `btn--${variant}`, sm && 'btn--sm'];
+---
+{lead || !href
+  ? <button type="button" class:list={cls} data-lead>{label}{flower && <IconFlower />}</button>
+  : <a class:list={cls} href={u(href)}>{label}{flower && <IconFlower />}</a>}

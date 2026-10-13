@@ -1,0 +1,38 @@
+---
+// Слева заголовок и подводка, справа список карточек «заголовок + текст + фото» (оплата, корпоративные задачи).
+import { img } from '../lib/img';
+const { title, text, items } = Astro.props as { title: string; text?: string; items: { title: string; text?: string; image: string }[] };
+---
+<section class="section container lc">
+  <div class="lc__head">
+    <h2 class="h2">{title}</h2>
+    {text && <p class="lc__text" set:html={text.replace(/\n/g, '<br />')} />}
+  </div>
+  <ul class="lc__list">
+    {items.map((i) => (
+      <li class="lc__item reveal">
+        <div class="lc__body"><h3 class="h3">{i.title}</h3>{i.text && <p>{i.text}</p>}</div>
+        <img src={img(i.image, 800)} alt="" loading="lazy" />
+      </li>
+    ))}
+  </ul>
+</section>
+<style>
+  .lc { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .lc__head { display: grid; gap: 20px; position: sticky; top: 24px; }
+  .lc__text { font-size: 14px; max-width: 460px; }
+  .lc__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+  .lc__item { display: grid; grid-template-columns: 1fr 210px; gap: 20px; align-items: center; padding: 18px 18px 18px 26px; border: 1px solid var(--ink); border-radius: 20px; min-height: 150px; }
+  .lc__body { display: grid; gap: 10px; align-content: start; }
+  .lc__body p { font-size: 13.5px; }
+  .lc__item img { width: 100%; height: 120px; object-fit: cover; border-radius: 14px; }
+  @media (max-width: 1023px) {
+    .lc { grid-template-columns: 1fr; gap: 20px; }
+    .lc__head { position: static; }
+    .lc__list { gap: 10px; }
+    .lc__item { grid-template-columns: 1fr 110px; padding: 14px 14px 14px 18px; min-height: 0; border-radius: 16px; }
+    .lc__item img { height: 86px; border-radius: 12px; }
+    .lc__body :global(.h3) { font-size: 19px; }
+    .lc__body p { font-size: 12.5px; }
+  }
+</style>

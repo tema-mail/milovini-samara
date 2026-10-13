@@ -1,0 +1,33 @@
+---
+// Список преимуществ строками с иконками + фото справа («Всё необходимое для заказа в одном месте»).
+import { img, srcset } from '../lib/img';
+const { title, image, items } = Astro.props as { title: string; image: string; items: { icon: string; title: string; text: string }[] };
+---
+<section class="section container fl">
+  <div class="fl__body">
+    <h2 class="h2" set:html={title.replace(/\n/g, '<br />')} />
+    <ul class="fl__list">
+      {items.map((i) => (
+        <li class="reveal"><img src={img(i.icon)} alt="" width="50" height="50" loading="lazy" /><div><h3 class="h3">{i.title}</h3><p>{i.text}</p></div></li>
+      ))}
+    </ul>
+  </div>
+  <div class="fl__photo"><img src={img(image)} srcset={srcset(image)} sizes="(max-width: 1023px) 100vw, 50vw" alt="" loading="lazy" /></div>
+</section>
+<style>
+  .fl { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .fl__body { display: grid; gap: 36px; align-content: start; }
+  .fl__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .fl__list li { display: grid; grid-template-columns: 50px 1fr; gap: 24px; align-items: center; padding: 16px 22px; border: 1px solid var(--mauve); border-radius: 18px; }
+  .fl__list :global(.h3) { font-size: 26px; }
+  .fl__list p { font-size: 12.5px; margin-top: 4px; }
+  .fl__photo { border-radius: var(--radius-xl); overflow: hidden; }
+  .fl__photo img { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 1023px) {
+    .fl { grid-template-columns: 1fr; gap: 24px; }
+    .fl__list li { grid-template-columns: 40px 1fr; gap: 14px; padding: 12px 14px; }
+    .fl__list img { width: 40px; height: 40px; }
+    .fl__list :global(.h3) { font-size: 19px; }
+    .fl__photo { aspect-ratio: 4 / 3.6; }
+  }
+</style>
