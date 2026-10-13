@@ -1,0 +1,38 @@
+---
+// Посты акций – адреса как на Тильде (/tpost/<id>-<slug>).
+import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import FinalCta from '../../components/FinalCta.astro';
+import { u } from '../../lib/url';
+import posts from '../../data/posts.json';
+
+export function getStaticPaths() {
+  return posts.map((p) => ({ params: { slug: p.path.replace(/^\/tpost\//, '') }, props: { p } }));
+}
+const { p } = Astro.props as { p: (typeof posts)[number] };
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const body = p.body.replace(/href="\//g, `href="${base}/`);
+---
+<Base title={`${p.title} – Milovini Flowers`} description={p.descr || p.title} image={p.image ? u(p.image + '-1200.webp') : undefined}>
+  <article class="container art">
+    <Crumbs items={[{ label: 'Главная', href: '/' }, { label: 'Акции', href: '/akcii' }, { label: p.title }]} />
+    <h1 class="h1 art__title">{p.title}</h1>
+    {p.image && <img class="art__img" src={u(p.image + '-1200.webp')} alt="" />}
+    <div class="art__body" set:html={body} />
+    <div class="art__cta">
+      <a class="btn btn--mauve" href={u('/catalog/akcii')}>Смотреть букеты по акции</a>
+      <button type="button" class="btn btn--outline" data-lead>Оставить заявку</button>
+    </div>
+  </article>
+  <FinalCta />
+</Base>
+<style>
+  .art { max-width: 900px; padding-top: 24px; display: grid; gap: 24px; }
+  .art__img { width: 100%; border-radius: var(--radius-xl); }
+  .art__body { font-size: 16px; line-height: 1.7; color: var(--ink); }
+  .art__body :global(h2), .art__body :global(h3) { font: 400 28px/1.2 var(--head-font); color: var(--mauve); margin: 32px 0 12px; }
+  .art__body :global(a) { color: var(--mauve); text-decoration: underline; }
+  .art__body :global(ul) { padding-left: 20px; }
+  .art__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  @media (max-width: 1023px) { .art__body { font-size: 15px; } .art__body :global(h2) { font-size: 22px; } }
+</style>

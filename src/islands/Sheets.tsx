@@ -131,7 +131,7 @@ function Toast() {
   }, [t?.key]);
   if (!t) return null;
   return (
-    <div class={`toast${show ? ' is-show' : ''}`} role="status">
+    <div class={`toast${show && sheet.value === null ? ' is-show' : ''}`} role="status">
       <span>{t.text}</span>
       <button type="button" onClick={() => { setShow(false); sheet.value = 'cart'; }}>Открыть</button>
     </div>

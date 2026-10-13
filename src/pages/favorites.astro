@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import FavPage from '../islands/FavPage';
+---
+<Base title="Избранное – Milovini Flowers" noindex>
+  <section class="container" style="padding-top:24px;display:grid;gap:24px">
+    <Crumbs items={[{ label: 'Главная', href: '/' }, { label: 'Избранное' }]} />
+    <h1 class="h1">Избранное</h1>
+    <FavPage client:load />
+  </section>
+</Base>

@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Split from '../components/Split.astro';
+import IconCards from '../components/IconCards.astro';
+import CategoryTiles from '../components/CategoryTiles.astro';
+import PinkCta from '../components/PinkCta.astro';
+import DeliveryCards from '../components/DeliveryCards.astro';
+import Reviews from '../components/Reviews.astro';
+import FinalCta from '../components/FinalCta.astro';
+import ContactCard from '../components/ContactCard.astro';
+const T = 'https://static.tildacdn.com/';
+---
+<Base title="О компании Milovini Flowers – цветы с доставкой по Самаре" description="Milovini Flowers – цветочный магазин в Самаре: профессиональные флористы, цветы с плантаций Эквадора и Голландии, фото перед доставкой, гарантия 48 часов.">
+  <PageHero
+    crumbs={[{ label: 'Главная', href: '/' }, { label: 'О компании' }]}
+    title="Milovini Flowers – цветы с доставкой по Самаре"
+    text="Собираем букеты и композиции для важных событий, тёплых встреч и моментов, когда хочется порадовать близкого человека без особого повода."
+    image={T + 'tild6433-3232-4330-b366-306165653831/image.png'}
+    buttons={[{ label: 'Выбрать букет', href: '/catalog' }, { label: 'Помогите выбрать', lead: true }]}
+    features={['guarantee', 'delivery', 'bonus', 'allday']}
+  />
+  <Split
+    reverse
+    title="Цветы, к которым относимся с вниманием"
+    image={T + 'tild3262-3536-4365-b934-353834653034/Mask_group.png'}
+    html={`<p>Milovini Flowers – цветочный магазин в Самаре, где с заказами работают профессиональные флористы.</p><p>Цветы закупаем напрямую с плантаций Эквадора и Голландии. Такой подход позволяет контролировать качество цветов, с которыми работают наши флористы, и предлагать свежие букеты и композиции для разных поводов.</p>`}
+    buttons={[{ label: 'Выбрать букет', href: '/catalog' }, { label: 'Помогите выбрать', lead: true }]}
+  />
+  <IconCards
+    center
+    title="От выбора цветов до момента вручения"
+    sub="Для нас заказ – это не только готовый букет. Важно, чтобы клиент был уверен в результате на каждом этапе"
+    items={[
+      { icon: T + 'tild6562-3039-4537-a430-323237343931/Group_1171274934.svg', title: 'Свежесть цветов', text: 'На весь ассортимент Milovini действует гарантия качества 48 часов с момента доставки.' },
+      { icon: T + 'tild3363-6633-4462-b135-643162386261/Group_1171274935.svg', title: 'Опытные флористы', text: 'С букетами и композициями работают профессиональные флористы.' },
+      { icon: T + 'tild6364-6666-4661-a230-613562373138/Group_1171274936.svg', title: 'Фото перед доставкой', text: 'Перед отправкой заказа присылаем фото готового букета или композиции на согласование.' },
+      { icon: T + 'tild3730-3262-4033-b036-373338356262/Group_1171274937.svg', title: 'Бережная перевозка', text: 'Букеты доставляются в фирменных транспортировочных сумках, которые помогают сохранить их внешний вид во время перевозки.' },
+    ]}
+  />
+  <CategoryTiles title="Что можно заказать" sub="Букеты, композиции, розы и подарки к цветам" scroll />
+  <PinkCta
+    title="Чтобы букет радовал дольше"
+    text="К букетам и композициям прикладываем рекомендации по уходу и средство для увеличения стойкости цветов. На каждый заказ действует гарантия качества 48 часов с момента доставки."
+    image={T + 'tild6165-3336-4538-b663-616433346430/image_37.png'}
+    buttons={[{ label: 'Подробнее', href: '/garantee' }, { label: 'Помогите выбрать', lead: true }]}
+  />
+  <DeliveryCards />
+  <Split
+    title="Нам доверяют цветы для важных моментов"
+    image={T + 'tild6135-3334-4437-b662-626234333766/Mask_group.png'}
+    html={`<p><b>Гарантия качества 48 часов</b><br />Действует на весь ассортимент с момента доставки.</p><p><b>Доставка 24/7</b><br />Можно оформить доставку цветов по Самаре в любое время суток.</p><p><b>Фото готового заказа</b><br />До отправки вы увидите букет или композицию, которые будут доставлены получателю.</p><p><b>5% бонусов</b><br />С каждого заказа начисляем 5% бонусов, которыми можно воспользоваться при следующей покупке.</p>`}
+    buttons={[{ label: 'Смотреть каталог', href: '/catalog' }, { label: 'Помогите выбрать', lead: true }]}
+  />
+  <Reviews id="reviews" />
+  <FinalCta />
+  <ContactCard />
+</Base>

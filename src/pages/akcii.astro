@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import FinalCta from '../components/FinalCta.astro';
+import ContactCard from '../components/ContactCard.astro';
+import Catalog from '../islands/Catalog';
+import { catalogCards, PART } from '../lib/catalog';
+import { u } from '../lib/url';
+import posts from '../data/posts.json';
+const T = 'https://static.tildacdn.com/';
+const sale = catalogCards(PART.sale);
+const date = (d: string) => new Date(d.replace(' ', 'T')).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<Base title="Акции на цветы в Самаре – Milovini Flowers" description="Специальные предложения Milovini Flowers: 101 роза за 9 990 ₽, скидка 20% на первый заказ, розы по специальной цене. Доставка по Самаре 24/7.">
+  <PageHero
+    crumbs={[{ label: 'Главная', href: '/' }, { label: 'Акции' }]}
+    title="Акции Milovini Flowers"
+    text="Специальные предложения на букеты и композиции с доставкой по Самаре"
+    image={T + 'tild3536-6237-4033-b630-663066643461/image.png'}
+    buttons={[{ label: 'Смотреть акции', href: '/akcii#list' }, { label: 'Помогите выбрать', href: '/#Quiz' }]}
+    features={false}
+    small
+  />
+  <section class="section container">
+    <ul class="posts">
+      {posts.map((p) => (
+        <li>
+          <a class="post" href={u(p.path)}>
+            {p.image && <img src={u(p.image + '-600.webp')} alt="" loading="lazy" />}
+            <div class="post__body">
+              <time datetime={p.date.slice(0, 10)}>{date(p.date)}</time>
+              <h2 class="post__title">{p.title}</h2>
+              {p.descr && <p>{p.descr}</p>}
+              <span class="post__more">Подробнее →</span>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+  <section class="section container" id="list">
+    <SectionHead title="Букеты по акции" sub={`${sale.length} предложений со скидкой`} />
+    <Catalog client:visible cards={sale} step={8} />
+  </section>
+  <FinalCta />
+  <ContactCard />
+</Base>
+<style>
+  .posts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .post { display: flex; flex-direction: column; height: 100%; border: 1px solid var(--line); border-radius: 22px; overflow: hidden; transition: box-shadow .25s, transform .25s var(--ease); }
+  .post:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+  .post img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .post__body { display: grid; gap: 10px; padding: 20px 22px 24px; flex: 1; align-content: start; }
+  .post time { font-size: 12px; color: var(--muted); }
+  .post__title { font: 400 22px/1.25 var(--head-font); color: var(--mauve); }
+  .post__body p { font-size: 13.5px; }
+  .post__more { font-weight: 600; font-size: 13px; color: var(--mauve); }
+  @media (max-width: 1023px) { .posts { grid-template-columns: 1fr; gap: 12px; } .post { flex-direction: row; } .post img { width: 120px; aspect-ratio: auto; } .post__body { padding: 14px; gap: 6px; } .post__title { font-size: 17px; } .post__body p { display: none; } }
+</style>

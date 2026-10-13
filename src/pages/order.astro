@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import Order from '../islands/Order';
+import { products, toCard, inPart, PART } from '../lib/catalog';
+
+// Допродажа: открытки, шары, игрушки – от недорогих к дорогим внутри каждой группы.
+const pick = (part: string, n: number) => products.filter((p) => p.price && p.images.length && inPart(p, part)).sort((a, b) => a.price! - b.price!).slice(0, n).map(toCard);
+const addons = [...pick(PART.cards, 8), ...pick(PART.balloons, 6), ...pick(PART.toys, 6)];
+---
+<Base title="Оформление заказа – Milovini Flowers" noindex noSticky>
+  <section class="container" style="padding-top:24px;display:grid;gap:20px">
+    <Crumbs items={[{ label: 'Главная', href: '/' }, { label: 'Каталог', href: '/catalog' }, { label: 'Оформление заказа' }]} />
+    <h1 class="h1">Оформление заказа</h1>
+    <Order client:load addons={addons} />
+  </section>
+</Base>

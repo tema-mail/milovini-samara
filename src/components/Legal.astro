@@ -1,0 +1,23 @@
+---
+// Юридическая страница: текст с оригинала, номера разделов превращаются в заголовки.
+import Base from '../layouts/Base.astro';
+import Crumbs from './Crumbs.astro';
+import legal from '../data/legal.json';
+const { doc, title } = Astro.props as { doc: 'policy' | 'agreement'; title: string };
+const html = legal[doc].html
+  .replace(/(^|<br\/>)\s*(\d{1,2}\. [А-ЯЁ][^<]{2,90})<br\/>/g, '<h2>$2</h2>')
+  .replace(/(<br\/>){2,}/g, '<br/>');
+---
+<Base title={`${title} – Milovini Flowers`} description={`${title} сайта интернет-магазина Milovini Flowers (Самара).`}>
+  <article class="container legal">
+    <Crumbs items={[{ label: 'Главная', href: '/' }, { label: title }]} />
+    <h1 class="h1">{title}</h1>
+    <div class="legal__body" set:html={html} />
+  </article>
+</Base>
+<style>
+  .legal { max-width: 960px; padding-top: 24px; display: grid; gap: 24px; }
+  .legal__body { font-size: 15px; line-height: 1.7; color: var(--ink); }
+  .legal__body :global(h2) { font: 400 26px/1.25 var(--head-font); color: var(--mauve); margin: 36px 0 12px; }
+  .legal__body :global(p) { margin: 0 0 6px; }
+</style>

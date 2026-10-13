@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/url';
+import { SITE } from '../lib/site';
+import { img } from '../lib/img';
+const photo = 'https://static.tildacdn.com/tild6166-3533-4163-a139-616561643762/image.png';
+---
+<Base title="Спасибо – Milovini Flowers" noindex noSticky>
+  <section class="container ty">
+    <div class="ty__card pink-card">
+      <span class="ty__ok" aria-hidden="true">✓</span>
+      <h1 class="h1">Спасибо!</h1>
+      <p class="ty__text" id="ty-text">Ваша заявка принята, наш менеджер свяжется с вами в ближайшее время для обсуждения деталей.</p>
+      <p class="ty__small">Если удобнее – напишите или позвоните сами: <a href={SITE.phoneHref}>{SITE.phone}</a></p>
+      <div class="ty__btns">
+        <a class="btn btn--white" href={u('/')}>На главную</a>
+        <a class="btn btn--outline" href={u('/catalog')}>В каталог</a>
+      </div>
+    </div>
+    <div class="ty__photo"><img src={img(photo)} alt="" /></div>
+  </section>
+  <script>
+    // Страница заказа кладёт номер заказа – показываем его.
+    try {
+      const n = sessionStorage.getItem('mv_last_order');
+      if (n) {
+        const t = document.getElementById('ty-text');
+        if (t) t.textContent = `Заказ №${n} принят. Флорист соберёт букет, пришлёт фото на согласование и свяжется с вами для подтверждения.`;
+        sessionStorage.removeItem('mv_last_order');
+      }
+    } catch {}
+  </script>
+</Base>
+<style>
+  .ty { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-top: 16px; }
+  .ty__card { display: grid; gap: 18px; align-content: center; padding: 64px 56px; min-height: 560px; }
+  .ty__ok { width: 64px; height: 64px; border-radius: 50%; background: #fff; color: var(--mauve); display: grid; place-items: center; font-size: 28px; }
+  .ty__text { font-size: 16px; max-width: 480px; }
+  .ty__small { font-size: 13px; }
+  .ty__small a { color: var(--mauve); font-weight: 600; }
+  .ty__btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+  .ty__photo { border-radius: var(--radius-xl); overflow: hidden; }
+  .ty__photo img { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 1023px) { .ty { grid-template-columns: 1fr; } .ty__photo { display: none; } .ty__card { padding: 36px 20px; min-height: 0; } .ty__btns .btn { width: 100%; } }
+</style>

@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import QuizSection from '../components/QuizSection.astro';
+import FinalCta from '../components/FinalCta.astro';
+import ContactCard from '../components/ContactCard.astro';
+import { SITE } from '../lib/site';
+const T = 'https://static.tildacdn.com/';
+const ld = {
+  '@context': 'https://schema.org', '@type': 'Florist', name: SITE.name, telephone: '+79371711177',
+  address: { '@type': 'PostalAddress', addressLocality: 'Самара', streetAddress: SITE.address, addressCountry: 'RU' },
+  openingHours: 'Mo-Su 00:00-24:00', url: new URL('/', Astro.site).href,
+};
+---
+<Base title="Контакты Milovini Flowers – цветы в Самаре, ул. Первомайская, 26" description="Milovini Flowers: Самара, ул. Первомайская, 26. Телефон +7 (937) 171-11-77, работаем круглосуточно. WhatsApp, Telegram, ВКонтакте, MAX.">
+  <PageHero
+    crumbs={[{ label: 'Главная', href: '/' }, { label: 'Контакты' }]}
+    title="Контакты Milovini Flowers"
+    text={'Свяжитесь с нами, чтобы оформить заказ, уточнить условия доставки или получить помощь с выбором цветов.\nMilovini работает круглосуточно.'}
+    image={T + 'tild6166-3533-4163-a139-616561643762/image.png'}
+    buttons={[{ label: 'Выбрать букет', href: '/catalog' }, { label: 'Помогите выбрать', lead: true }]}
+    facts={[SITE.owner, `ИНН ${SITE.inn}`]}
+  />
+  <ContactCard />
+  <QuizSection />
+  <FinalCta />
+  <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+</Base>

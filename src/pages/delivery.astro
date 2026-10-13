@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import ListCards from '../components/ListCards.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Faq from '../components/Faq.astro';
+import FinalCta from '../components/FinalCta.astro';
+import ContactCard from '../components/ContactCard.astro';
+import { IconFlower } from '../islands/icons';
+import { ZONES } from '../lib/delivery';
+import faq from '../data/faq.json';
+const T = 'https://static.tildacdn.com/';
+const [center, z400, z500] = ZONES;
+---
+<Base title="Доставка и оплата цветов в Самаре – Milovini Flowers" description="Доставка цветов по Самаре круглосуточно: бесплатно от 1 500 ₽ в центральных районах, +400 ₽ и +500 ₽ в отдалённые, ночью +400–500 ₽, самовывоз с Первомайской, 26. Оплата наличными, картой, по ссылке или QR.">
+  <PageHero
+    crumbs={[{ label: 'Главная', href: '/' }, { label: 'Доставка и оплата' }]}
+    title="Доставка и оплата цветов в Самаре"
+    text="Milovini принимает и доставляет заказы круглосуточно. С 09:00 до 23:00 при заказе букета от 1 500 ₽ действует бесплатная доставка в указанные районы Самары"
+    image={T + 'tild6462-3464-4564-b439-613766643731/image.png'}
+    buttons={[{ label: 'Выбрать букет', href: '/catalog' }, { label: 'Помогите выбрать', lead: true }]}
+    features={['guarantee', 'delivery', 'bonus', 'photo']}
+  />
+  <ListCards
+    title="Как можно оплатить заказ"
+    text={'Milovini принимает и доставляет заказы круглосуточно.\nС 09:00 до 23:00 при заказе букета от 1 500 ₽ действует бесплатная доставка в указанные районы Самары'}
+    items={[
+      { title: 'Наличными', image: T + 'tild3736-6264-4432-b265-396661643335/Rectangle_30782.png' },
+      { title: 'Банковской картой', image: T + 'tild6164-6432-4634-a334-353339306364/Rectangle_30783.png' },
+      { title: 'По ссылке или QR-коду', image: T + 'tild6135-3438-4634-b165-656433383637/Rectangle_30784.png' },
+    ]}
+  />
+  <section class="section container">
+    <SectionHead title="Условия и стоимость доставки" sub="Доставка заказов Milovini осуществляется круглосуточно" />
+    <div class="dt">
+      {[center, z400, z500].map((z, i) => (
+        <article class="dt__card">
+          <h3 class="h3">{['С 09:00 до 23:00', 'Доставка +400 ₽', 'Доставка +500 ₽'][i]}</h3>
+          <p>{i === 0 ? 'При заказе букета от 1 500 ₽ доставка бесплатна в:' : `Доплата ${z.price} ₽ к заказу действует для доставки в:`}</p>
+          <ul>{z.areas.map((a) => <li>{i === 0 ? `${a} район` : a}</li>)}</ul>
+          <button type="button" class="btn btn--pink btn--sm" data-lead>Заказать букет <IconFlower size={16} /></button>
+        </article>
+      ))}
+      <article class="dt__card">
+        <h3 class="h3">Ночная доставка</h3>
+        <p>Milovini доставляет цветы и ночью.</p>
+        <p><b>Для заказов с 23:00 до 09:00</b> стоимость доставки составляет дополнительно 400–500 ₽.</p>
+        <button type="button" class="btn btn--pink btn--sm" data-lead>Заказать букет <IconFlower size={16} /></button>
+      </article>
+      <article class="dt__card">
+        <h3 class="h3">Самовывоз</h3>
+        <p>Забрать заказ самостоятельно. При оформлении заказа доступен самовывоз. Оплатить заказ при самовывозе можно наличными.</p>
+        <p><b>Адрес</b><br />Самара, ул. Первомайская, 26</p>
+        <button type="button" class="btn btn--pink btn--sm" data-lead>Заказать букет <IconFlower size={16} /></button>
+      </article>
+      <article class="dt__card dt__card--pink pink-card">
+        <h3 class="h3">Вы увидите заказ до отправки</h3>
+        <p>Перед доставкой мы отправляем фото готового букета или композиции на согласование.</p>
+        <p>Все букеты доставляются в фирменных транспортировочных сумках.</p>
+        <p>К заказу прикладываются рекомендации по уходу и кризал – средство для увеличения стойкости цветов.</p>
+        <button type="button" class="btn btn--white btn--sm" data-lead>Заказать букет <IconFlower size={16} /></button>
+      </article>
+    </div>
+  </section>
+  <Faq items={faq.delivery} />
+  <FinalCta />
+  <ContactCard />
+</Base>
+<style>
+  .dt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .dt__card { display: flex; flex-direction: column; gap: 12px; padding: 28px; border: 1px solid var(--mauve); border-radius: 20px; font-size: 13.5px; min-height: 380px; }
+  .dt__card ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+  .dt__card b { color: var(--ink); }
+  .dt__card .btn { margin-top: auto; }
+  .dt__card--pink { border: 0; }
+  @media (max-width: 1023px) {
+    .dt { grid-template-columns: 1fr; gap: 10px; }
+    .dt__card { min-height: 0; padding: 20px; }
+    .dt__card .btn { margin-top: 8px; }
+  }
+</style>

@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/url';
+---
+<Base title="Страница не найдена – Milovini Flowers" noindex>
+  <section class="container nf">
+    <div class="pink-card nf__card">
+      <p class="nf__code">404</p>
+      <h1 class="h1">Такой страницы нет</h1>
+      <p>Возможно, букет уже распродан или адрес изменился. Загляните в каталог – там всё актуальное.</p>
+      <div class="nf__btns"><a class="btn btn--white" href={u('/catalog')}>В каталог</a><a class="btn btn--outline" href={u('/')}>На главную</a></div>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { padding-top: 16px; }
+  .nf__card { display: grid; gap: 18px; justify-items: start; padding: 64px 56px; }
+  .nf__code { font: 300 96px/1 var(--head-font); color: #fff; }
+  .nf__btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  @media (max-width: 1023px) { .nf__card { padding: 36px 20px; } }
+</style>
