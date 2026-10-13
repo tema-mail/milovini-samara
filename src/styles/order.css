@@ -22,7 +22,7 @@
 .of-item__info { display: grid; gap: 4px; min-width: 0; }
 .of-item__title { font-weight: 600; color: var(--ink); }
 .of-item__unit { font-size: 12px; color: var(--muted); }
-.of-item__sum { text-align: right; color: var(--ink); }
+.of-item__sum { text-align: right; color: var(--ink); white-space: nowrap; }
 
 .of-addons { display: grid; gap: 12px; padding-top: 8px; border-top: 1px dashed var(--line); }
 .of-addons__row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: thin; padding-bottom: 6px; }
@@ -71,7 +71,7 @@
 .of-sum__items small { color: var(--muted); }
 .of-sum__rows { margin: 0; display: grid; gap: 8px; padding-top: 14px; border-top: 1px solid #e3dde0; }
 .of-sum__rows div { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
-.of-sum__rows dd { margin: 0; color: var(--ink); font-weight: 600; text-align: right; }
+.of-sum__rows dd { white-space: nowrap; margin: 0; color: var(--ink); font-weight: 600; text-align: right; }
 .of-sum__rows .is-accent dd, .of-sum__rows .is-accent dt { color: var(--mauve); }
 .of-sum__total { padding-top: 10px; margin-top: 4px; border-top: 1px solid #e3dde0; }
 .of-sum__total dt { font-weight: 600; color: var(--ink); }
@@ -95,7 +95,8 @@
     order: -1; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 18px;
     border: 0; border-radius: 18px; background: var(--pink); color: var(--mauve-dark); font-size: 14px;
   }
-  .of-sum__toggle b { font-size: 17px; color: var(--ink); }
+  .of-sum__toggle span { flex: 1; text-align: left; }
+  .of-sum__toggle b { font-size: 17px; color: var(--ink); white-space: nowrap; }
   .of-sum__toggle::after { content: '▾'; margin-left: 8px; transition: transform .2s; }
   .of-sum__toggle[aria-expanded='true']::after { transform: rotate(180deg); }
   .of-sum__box { order: -1; display: none; width: 100%; padding: 18px; }
@@ -106,7 +107,7 @@
   .of-sec__head { margin-bottom: 16px; }
   .of-sec__head h2 { font-size: 21px; }
   .of-grid, .of-grid--addr { grid-template-columns: 1fr; }
-  .of-item { grid-template-columns: 60px minmax(0, 1fr) 30px; grid-template-areas: 'img info del' 'img qty sum'; gap: 6px 12px; }
+  .of-item { grid-template-columns: 60px minmax(0, 1fr) auto; grid-template-areas: 'img info del' 'img qty sum'; gap: 6px 12px; }
   .of-item > a { grid-area: img; }
   .of-item img { width: 60px; height: 74px; }
   .of-item__info { grid-area: info; }

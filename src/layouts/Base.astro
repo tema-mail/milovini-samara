@@ -19,6 +19,8 @@ interface Props {
 }
 const { title, description = 'Доставка цветов в Самаре 24/7 от 60 минут. Букеты и композиции от флористов Milovini, фото перед доставкой, гарантия свежести 48 часов.', image, noSticky = false, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+// Показная копия на GitHub Pages закрыта от поиска, чтобы не дублировать живой milovinisamara.ru.
+const closed = noindex || import.meta.env.PUBLIC_NOINDEX === '1';
 ---
 <!doctype html>
 <html lang="ru">
@@ -28,7 +30,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    {noindex && <meta name="robots" content="noindex" />}
+    {closed && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
