@@ -3,7 +3,7 @@
 // внутри карточки товара; карточка из нескольких каталогов показана в каждом, считается один раз), Внутренние страницы,
 // Блог (отдельно – владелец 18.10.2026: «статьи блога отдельно надо»), Юридические, Технические.
 import Admin from '../../layouts/Admin.astro';
-import { allProducts, inPart, type Product } from '../../lib/catalog';
+import { allProducts, inPart, parts, type Part, type Product } from '../../lib/catalog';
 import { CATALOGS } from '../../lib/site';
 import { img } from '../../lib/img';
 import { u } from '../../lib/url';
@@ -21,6 +21,10 @@ const visible = allProducts.filter((p) => !p.hidden).length;
 // Страниц на сайте: главная + общий каталог + страницы-каталоги + карточки (видимые) + внутренние + блог + юридические + технические
 const total = 1 + 1 + CATALOGS.length + visible + inner.length + posts.length + legal.length + tech.length;
 const card = (p: Product) => ({ p, thumb: u(p.images[0] + '-480.webp') });
+// Разделы магазина деревом – строки «Раздел «…»» внутри общего каталога, как у эталона Elite Rose (адрес – фильтр /catalog?part=).
+const flat = (ps: Part[], d = 0): { p: Part; d: number }[] => ps.flatMap((p) => [{ p, d }, ...flat(p.children, d + 1)]);
+const sections = flat(parts);
+const T = 'https://static.tildacdn.com/';
 ---
 <Admin title="Страницы сайта" active="pages">
   <div class="tools">
@@ -33,7 +37,7 @@ const card = (p: Product) => ({ p, thumb: u(p.images[0] + '-480.webp') });
 
     <div class="pgroup">Главная <span>1</span></div>
     <div class="prow">
-      <span class="thumb"></span>
+      <img class="thumb" src={img(T + 'tild6433-3531-4665-b931-313434373861/image.png', 800)} alt="" />
       <div><span class="pname">Главная</span><div class="muted" style="font-size:12px">Доставка цветов в Самаре 24/7 – Milovini Flowers</div></div>
       <a class="purl" href={u('/')} target="_blank">{site('/')}</a>
       <span class="pkind">Главная</span>
@@ -42,11 +46,19 @@ const card = (p: Product) => ({ p, thumb: u(p.images[0] + '-480.webp') });
     <div class="pgroup">Каталоги <span>{1 + CATALOGS.length} · {visible} карточек товара</span></div>
     <details class="pcat">
       <summary class="prow">
-        <span class="thumb"></span>
-        <div><span class="pname"><i class="caret"></i>Общий каталог</span><div class="muted" style="font-size:12px">все {allProducts.length} товаров, фильтр по разделам</div></div>
+        <img class="thumb" src={img(T + 'tild6161-3931-4964-b330-373237633439/image.png', 800)} alt="" />
+        <div><span class="pname"><i class="caret"></i>Общий каталог</span><div class="muted" style="font-size:12px">{allProducts.length} товаров · {sections.length} разделов</div></div>
         <a class="purl" href={u('/catalog')} target="_blank" onclick="event.stopPropagation()">{site('/catalog')}</a>
         <span class="pkind">Каталог</span>
       </summary>
+      {sections.map(({ p: pt, d }) => (
+        <div class="prow lvl1">
+          <span></span>
+          <div><span class="pname" style={d ? `padding-left:${22 + d * 18}px` : ''}>Раздел «{pt.title}»</span><div class="muted" style="font-size:12px">{allProducts.filter((p) => inPart(p, pt.id)).length} товаров</div></div>
+          <a class="purl" href={u(`/catalog?part=${pt.id}`)} target="_blank">/catalog?part={pt.id}</a>
+          <span class="pkind">Раздел каталога</span>
+        </div>
+      ))}
       {allProducts.map((p) => (
         <div class="prow lvl1">
           <img class="thumb" src={card(p).thumb} alt="" loading="lazy" />
@@ -80,27 +92,27 @@ const card = (p: Product) => ({ p, thumb: u(p.images[0] + '-480.webp') });
 
     <div class="pgroup">Внутренние страницы <span>{inner.length}</span></div>
     {inner.map((t) => (
-      <div class="prow"><span class="thumb"></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Страница</span></div>
+      <div class="prow"><span></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Страница</span></div>
     ))}
 
     <div class="pgroup">Блог <span>{posts.length} статьи</span></div>
     {posts.map((p) => (
       <div class="prow">
-        {p.image ? <img class="thumb" src={u(p.image + '-600.webp')} alt="" loading="lazy" /> : <span class="thumb"></span>}
+        {p.image ? <img class="thumb" src={u(p.image + '-600.webp')} alt="" loading="lazy" /> : <span></span>}
         <div><span class="pname">{p.title}</span><div class="muted" style="font-size:12px">{new Date(p.date.replace(' ', 'T')).toLocaleDateString('ru-RU')}</div></div>
-        <a class="purl" href={u(p.path)} target="_blank">{p.path}</a>
+        <a class="purl" href={u(p.path)} target="_blank">{site(p.path)}</a>
         <span class="pkind">Статья блога</span>
       </div>
     ))}
 
     <div class="pgroup">Юридические страницы <span>{legal.length}</span></div>
     {legal.map((t) => (
-      <div class="prow"><span class="thumb"></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Юридическая</span></div>
+      <div class="prow"><span></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Юридическая</span></div>
     ))}
 
     <div class="pgroup">Технические страницы <span>{tech.length}</span></div>
     {tech.map((t) => (
-      <div class="prow"><span class="thumb"></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Техническая</span></div>
+      <div class="prow"><span></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Техническая</span></div>
     ))}
   </div>
 </Admin>
