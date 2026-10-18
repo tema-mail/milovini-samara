@@ -11,7 +11,9 @@ export interface AdmProduct {
 }
 export interface AdmPart { id: string; title: string; depth?: number }
 
-const TABS = ['Основное', 'Фото', 'Разделы', 'Варианты', 'Размеры и вес', 'SEO'] as const;
+// «Варианты» и «Размеры и вес» эталона здесь нет: у товаров Milovini нет ни вариантов, ни веса в данных,
+// а вкладка «как будет устроено» – заглушка (правило владельца). Появятся вместе с данными.
+const TABS = ['Основное', 'Фото', 'Разделы', 'SEO'] as const;
 
 export default function ProductEditor({ product, parts, base, onClose, onSave, onDelete }: {
   product: AdmProduct; parts: AdmPart[]; base: string; onClose: () => void; onSave: (p: AdmProduct, files: File[]) => void; onDelete: (p: AdmProduct) => void;
@@ -20,7 +22,6 @@ export default function ProductEditor({ product, parts, base, onClose, onSave, o
   const [files, setFiles] = useState<{ file: File; url: string }[]>([]);
   const [tab, setTab] = useState<(typeof TABS)[number]>('Основное');
   const isNew = !product.id;
-  useEffect(() => setP(product), [product]);
   useEffect(() => {
     const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', k);
@@ -98,36 +99,6 @@ export default function ProductEditor({ product, parts, base, onClose, onSave, o
                   <label class="ck" style={pt.depth ? `margin-left:${pt.depth * 18}px` : ''}><input type="checkbox" checked={p.parts.includes(pt.id)} onChange={(e) => setP({ ...p, parts: (e.target as HTMLInputElement).checked ? [...p.parts, pt.id] : p.parts.filter((x) => x !== pt.id) })} />{pt.title}</label>
                 ))}
               </div>
-            </div>
-          )}
-
-          {tab === 'Варианты' && (
-            <div>
-              <p class="demo-note" style="margin:0 0 12px">Вкладка пока показывает, как это будет устроено – варианты ещё не сохраняются.</p>
-              <p class="muted" style="margin:0 0 12px">Варианты одного товара со своей ценой – например, количество роз или цвет. Покупатель выбирает вариант на странице товара.</p>
-              <table class="vt">
-                <thead><tr><th>Параметр</th><th>Значение</th><th>Цена, ₽</th><th>Артикул</th><th>Кол-во</th></tr></thead>
-                <tbody>
-                  <tr><td><input placeholder="Количество роз" /></td><td><input placeholder="51" /></td><td><input placeholder={String(p.price ?? '')} /></td><td><input /></td><td><input /></td></tr>
-                  <tr><td><input placeholder="Количество роз" /></td><td><input placeholder="101" /></td><td><input /></td><td><input /></td><td><input /></td></tr>
-                </tbody>
-              </table>
-              <button class="btn" style="margin-top:10px">+ Добавить вариант</button>
-              <h3 class="ed__h3">Характеристики для фильтра</h3>
-              <div class="fgrid">
-                <label class="f"><span>Высота стебля</span><input placeholder="60 см" /></label>
-                <label class="f"><span>Цвет</span><input placeholder="Красный" /></label>
-                <label class="f"><span>Повод</span><input placeholder="День рождения" /></label>
-              </div>
-            </div>
-          )}
-
-          {tab === 'Размеры и вес' && (
-            <div class="fgrid">
-              <p class="demo-note f--wide" style="margin:0">Вкладка пока показывает, как это будет устроено – вес и габариты ещё не сохраняются.</p>
-              <p class="muted f--wide" style="margin:0">Нужны для расчёта доставки службами (Яндекс Доставка, СДЭК). Для курьера магазина можно не заполнять.</p>
-              <label class="f"><span>Вес, кг</span><input value={p.weight} onInput={set('weight')} placeholder="2,5" /></label>
-              <label class="f"><span>Габариты Д×Ш×В, см</span><input value={p.size} onInput={set('size')} placeholder="70×50×50" /></label>
             </div>
           )}
 

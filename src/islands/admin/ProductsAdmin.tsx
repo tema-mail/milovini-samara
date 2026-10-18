@@ -133,13 +133,15 @@ export default function ProductsAdmin({ items, parts: initParts, base }: { items
     const next: Product = {
       ...(old ?? { sort: 0 }),
       id, path: old?.path ?? `/catalog/tproduct/${id}-${slugify(p.title)}`,
-      title: p.title.trim(), descr: p.descr.trim(), text: esc(p.text.trim()).replace(/\n/g, '<br />'),
+      // описание не трогали – сохраняем исходную разметку (<strong>Состав:</strong> и т. п.); правили – текст построчно
+      title: p.title.trim(), descr: p.descr.trim(), text: old && p.text === htmlToText(old.text) ? old.text : esc(p.text.trim()).replace(/\n/g, '<br />'),
       price: p.price, priceOld: p.priceOld, mark: p.mark.trim(), stock: p.qty.trim() ? Number(p.qty.replace(/\D/g, '')) : null,
       parts: p.parts, images, sku: p.sku.trim(), hidden: !p.visible,
       ...(p.seoTitle ? { seoTitle: p.seoTitle } : {}), ...(p.seoDescr ? { seoDescr: p.seoDescr } : {}),
     } as Product;
     const nextRaw = isNew ? [next, ...raw] : raw.map((x) => (x.id === id ? next : x));
     setEdit(null);
+    if (!isNew && !uploads.length && JSON.stringify(old) === JSON.stringify(next)) return setStatus({ kind: 'done', text: 'Изменений нет – сохранять нечего' });
     await persist(nextRaw, `${isNew ? 'новый товар' : 'товар'} «${next.title}»`, uploads);
   };
 
