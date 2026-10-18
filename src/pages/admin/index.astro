@@ -10,6 +10,8 @@ import { u } from '../../lib/url';
 import posts from '../../data/posts.json';
 
 const site = (p: string) => new URL(u(p), Astro.site).href;
+// Карточка страницы (scripts/page-cards.py, как у EV SIBIR): /admin/page/<адрес страницы>/. У 404 карточки нет.
+const card_ = (path: string) => u('/admin/page' + (path === '/' ? '/' : path.replace(/\/?$/, '/')));
 const inCatalog = (c: (typeof CATALOGS)[number] & { match?: string }) => allProducts.filter((p) => inPart(p, c.part) || (c.match ? p.title.includes(c.match) : false));
 const inner = [
   { name: 'О компании', path: '/about' }, { name: 'Гарантии', path: '/garantee' }, { name: 'Доставка и оплата', path: '/delivery' },
@@ -38,7 +40,7 @@ const T = 'https://static.tildacdn.com/';
     <div class="pgroup">Главная <span>1</span></div>
     <div class="prow">
       <img class="thumb" src={img(T + 'tild6433-3531-4665-b931-313434373861/image.png', 800)} alt="" />
-      <div><span class="pname">Главная</span><div class="muted" style="font-size:12px">Доставка цветов в Самаре 24/7 – Milovini Flowers</div></div>
+      <div><a class="pname pcard" href={card_('/')}>Главная</a><div class="muted" style="font-size:12px">Доставка цветов в Самаре 24/7 – Milovini Flowers</div></div>
       <a class="purl" href={u('/')} target="_blank">{site('/')}</a>
       <span class="pkind">Главная</span>
     </div>
@@ -47,7 +49,7 @@ const T = 'https://static.tildacdn.com/';
     <details class="pcat">
       <summary class="prow">
         <img class="thumb" src={img(T + 'tild6161-3931-4964-b330-373237633439/image.png', 800)} alt="" />
-        <div><span class="pname"><i class="caret"></i>Общий каталог</span><div class="muted" style="font-size:12px">{allProducts.length} товаров · {sections.length} разделов</div></div>
+        <div><span class="pname"><i class="caret"></i><a class="pcard" href={card_('/catalog')} onclick="event.stopPropagation()">Общий каталог</a></span><div class="muted" style="font-size:12px">{allProducts.length} товаров · {sections.length} разделов</div></div>
         <a class="purl" href={u('/catalog')} target="_blank" onclick="event.stopPropagation()">{site('/catalog')}</a>
         <span class="pkind">Каталог</span>
       </summary>
@@ -62,7 +64,7 @@ const T = 'https://static.tildacdn.com/';
       {allProducts.map((p) => (
         <div class="prow lvl1">
           <img class="thumb" src={card(p).thumb} alt="" loading="lazy" />
-          <div><span class="pname">{p.title}{p.hidden && <span class="chip" style="margin-left:8px">скрыт</span>}</span><div class="muted" style="font-size:12px">{p.price?.toLocaleString('ru-RU')} ₽</div></div>
+          <div><span class="pname">{p.hidden ? p.title : <a class="pcard" href={card_(p.path)}>{p.title}</a>}{p.hidden && <span class="chip" style="margin-left:8px">скрыт</span>}</span><div class="muted" style="font-size:12px">{p.price?.toLocaleString('ru-RU')} ₽</div></div>
           <a class="purl" href={u(p.path)} target="_blank">{p.path}</a>
           <span class="pkind">Карточка товара</span>
         </div>
@@ -74,14 +76,14 @@ const T = 'https://static.tildacdn.com/';
         <details class="pcat">
           <summary class="prow">
             <img class="thumb" src={img(c.image, 800)} alt="" loading="lazy" />
-            <div><span class="pname"><i class="caret"></i>Каталог «{c.title}»</span><div class="muted" style="font-size:12px">{list.length} товаров</div></div>
+            <div><span class="pname"><i class="caret"></i><a class="pcard" href={card_(`/catalog/${c.slug}`)} onclick="event.stopPropagation()">Каталог «{c.title}»</a></span><div class="muted" style="font-size:12px">{list.length} товаров</div></div>
             <a class="purl" href={u(`/catalog/${c.slug}`)} target="_blank" onclick="event.stopPropagation()">{site(`/catalog/${c.slug}`)}</a>
             <span class="pkind">Каталог</span>
           </summary>
           {list.map((p) => (
             <div class="prow lvl1">
               <img class="thumb" src={card(p).thumb} alt="" loading="lazy" />
-              <div><span class="pname">{p.title}{p.hidden && <span class="chip" style="margin-left:8px">скрыт</span>}</span><div class="muted" style="font-size:12px">{p.price?.toLocaleString('ru-RU')} ₽</div></div>
+              <div><span class="pname">{p.hidden ? p.title : <a class="pcard" href={card_(p.path)}>{p.title}</a>}{p.hidden && <span class="chip" style="margin-left:8px">скрыт</span>}</span><div class="muted" style="font-size:12px">{p.price?.toLocaleString('ru-RU')} ₽</div></div>
               <a class="purl" href={u(p.path)} target="_blank">{p.path}</a>
               <span class="pkind">Карточка товара</span>
             </div>
@@ -92,14 +94,14 @@ const T = 'https://static.tildacdn.com/';
 
     <div class="pgroup">Внутренние страницы <span>{inner.length}</span></div>
     {inner.map((t) => (
-      <div class="prow"><span></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Страница</span></div>
+      <div class="prow"><span></span>{t.path === '/404' ? <span class="pname">{t.name}</span> : <a class="pname pcard" href={card_(t.path)}>{t.name}</a>}<a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Страница</span></div>
     ))}
 
     <div class="pgroup">Блог <span>{posts.length} статьи</span></div>
     {posts.map((p) => (
       <div class="prow">
         {p.image ? <img class="thumb" src={u(p.image + '-600.webp')} alt="" loading="lazy" /> : <span></span>}
-        <div><span class="pname">{p.title}</span><div class="muted" style="font-size:12px">{new Date(p.date.replace(' ', 'T')).toLocaleDateString('ru-RU')}</div></div>
+        <div><a class="pname pcard" href={card_(p.path)}>{p.title}</a><div class="muted" style="font-size:12px">{new Date(p.date.replace(' ', 'T')).toLocaleDateString('ru-RU')}</div></div>
         <a class="purl" href={u(p.path)} target="_blank">{site(p.path)}</a>
         <span class="pkind">Статья блога</span>
       </div>
@@ -107,12 +109,12 @@ const T = 'https://static.tildacdn.com/';
 
     <div class="pgroup">Юридические страницы <span>{legal.length}</span></div>
     {legal.map((t) => (
-      <div class="prow"><span></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Юридическая</span></div>
+      <div class="prow"><span></span>{t.path === '/404' ? <span class="pname">{t.name}</span> : <a class="pname pcard" href={card_(t.path)}>{t.name}</a>}<a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Юридическая</span></div>
     ))}
 
     <div class="pgroup">Технические страницы <span>{tech.length}</span></div>
     {tech.map((t) => (
-      <div class="prow"><span></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Техническая</span></div>
+      <div class="prow"><span></span>{t.path === '/404' ? <span class="pname">{t.name}</span> : <a class="pname pcard" href={card_(t.path)}>{t.name}</a>}<a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Техническая</span></div>
     ))}
   </div>
 </Admin>
