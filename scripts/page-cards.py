@@ -129,10 +129,57 @@ def snippet_html(p) -> str:
             f'Поисковик может заменить описание фрагментом текста, если сочтёт его точнее.</p></div>')
 
 
+# Стили блока «Цифры страницы» – из эталона ~/Documents/ev-sibir/server/page_stats.py (CSS), без правок,
+# плюс замок. Модуль эталона тянет Метрику, Search Console и базу заявок – его не запускаем: данных у Milovini нет.
+STATS_CSS = """
+.pst{background:#fff;border:1px solid #dfe4e3;border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.pst h2{margin:0;font-size:16px;font-weight:600}
+.pst .top{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.pst .seg{display:flex;flex-wrap:wrap;gap:4px;background:#eef1f0;border-radius:9px;padding:3px}
+.pst .seg a{padding:5px 10px;border-radius:7px;font-size:13px;color:#2b302e;text-decoration:none}
+.pst .seg a.on{background:#005653;color:#fff}
+.pst .kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:1px;background:#dfe4e3;
+  border:1px solid #dfe4e3;border-radius:10px;overflow:hidden}
+.pst .kp>div{background:#fff;padding:10px 12px;display:grid;gap:2px;align-content:start}
+.pst .kp span{font-size:12px;color:#646b68}.pst .kp b{font-size:20px;font-variant-numeric:tabular-nums}
+.pst .kp small{font-size:11px;color:#8a938f;line-height:1.35}
+@media(max-width:420px){.pst .kp>div:last-child:nth-child(odd){grid-column:1/-1}}
+.pst .note{margin:10px 0 0;font-size:12px;color:#77817e;line-height:1.5}
+.pst--locked .seg a{pointer-events:none;opacity:.6}
+.pst--locked .kp b{display:block;height:22px;width:62%;border-radius:6px;background:#c9cfcc;filter:blur(3px)}
+.pst--locked .blurlist{filter:blur(4px);opacity:.6;pointer-events:none;user-select:none;margin-top:8px}
+.pst--locked .blurlist i{display:block;height:10px;border-radius:5px;background:#d9dedc;margin:9px 0}
+.pst__lock{display:flex;gap:12px;align-items:center;margin-top:12px;padding:12px 14px;border:1px solid #e2e5e3;border-radius:10px;background:#f7f9f8}
+.pst__lock svg{flex:none;color:#1c201f}
+.pst__lock b{display:block;font-size:14px}.pst__lock span{font-size:13px;color:#55605d}
+"""
+
+
+def stats_locked() -> str:
+    """«Цифры страницы» как у EV (7 плиток, неделя–год, заявки со страницы) – закрыто: подписи видны, цифр нет.
+    Владелец 18.10.2026: «плашку как на EV, только её закрой… замочек, что функционал доступен, если вы у нас на
+    SEO-ведении… чтобы он был виден; собирать не надо»."""
+    tiles = [
+        ("Показы в поиске", "Яндекс и Google вместе"), ("Заходы на сайт", "из них из поиска"),
+        ("Просмотры", "все открытия страницы"), ("Заявки", "формы на этой странице"),
+        ("Целевые действия", "формы · звонки · мессенджеры"), ("CR в действия", "действия / просмотры"),
+        ("Отказы", "доля визитов с отказом"),
+    ]
+    kp = "".join(f'<div><span>{t}</span><b></b><small>{n}</small></div>' for t, n in tiles)
+    seg = "".join(f'<a class="{"on" if k == "Месяц" else ""}">{k}</a>' for k in ("Неделя", "Месяц", "Квартал", "Год"))
+    return (f'<div class="pst pst--locked"><div class="top"><h2>Цифры страницы</h2><div class="seg">{seg}</div></div>'
+            f'<div class="kp">{kp}</div>'
+            f'<div class="pst__lock">{LOCK_ICON.replace("44", "34")}<div><b>Цифры страницы: функционал закрыт</b>'
+            f'<span>Доступен клиентам на постоянном SEO-ведении: показы, заходы, заявки и конверсия этой страницы '
+            f'по неделям, месяцам, кварталам и годам.</span></div></div>'
+            f'<h2 style="margin-top:14px;font-size:14px">Заявки с этой страницы за период</h2>'
+            f'<div class="blurlist" aria-hidden="true"><i style="width:58%"></i><i style="width:46%"></i><i style="width:52%"></i></div></div>')
+
+
 def card_html(p) -> str:
     """Карточка эталона, разрезанная по панелям: «Что стоит в SEO» – открыта, кластер – открыт названием,
     остальное – под замком (размыто, без цифр)."""
-    body = ev.detail_body(p, SITE_URL)
+    body = ev.detail_body(p, SITE_URL, stats_locked())
     panels = re.split(r'(?=<div class="panel">)', body)
     head, seo = panels[0], panels[1]
     locked = "".join(panels[2:-1] + [re.sub(r"</div></main>\s*$", "", panels[-1])])
@@ -172,7 +219,7 @@ def main(site_root: str) -> int:
     if 'id="lock-form"' in tpl:
         sys.exit("page-cards: админка уже закрыта замком – запускать до lock-admin.mjs")
     m0, m1 = tpl.index("<main>"), tpl.index("</main>") + len("</main>")
-    style = f"<style>{ev.CSS}{LOCK_CSS}</style>"
+    style = f"<style>{ev.CSS}{LOCK_CSS}{STATS_CSS}</style>"
     done = 0
     for route in routes(root):
         p = read(site_root, route)

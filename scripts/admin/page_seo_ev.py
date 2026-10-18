@@ -263,7 +263,7 @@ def _checks(items) -> str:
     return f'<ul class="checks">{"".join(li)}</ul>'
 
 
-def detail_body(p, site_url: str) -> str:
+def detail_body(p, site_url: str, stats_html: str = "") -> str:
     """Карточка в том порядке, в котором её просил владелец: бейдж, тайтл,
     дескриптор, H1, ключевые слова, альт-теги, прямые ответы (AEO),
     цитируемость в нейросетях (GEO), локальное SEO, кластер и запросы."""
@@ -295,6 +295,7 @@ def detail_body(p, site_url: str) -> str:
 <div><h1>{html.escape(p["title"] or p["route"])}</h1>
 <a class="url" href="{site_url}{p["route"]}" target="_blank" rel="noopener">{site_url}{p["route"]}</a>
 <div class="kind">{p["words"]} слов на странице{" · закрыта от индексации" if p["noindex"] else ""}</div></div></div>
+{stats_html}
 
 <div class="panel"><h2>Что стоит в SEO</h2>
 {_fld("Тайтл", p["title"])}
