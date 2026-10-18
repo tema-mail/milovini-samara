@@ -1,0 +1,11 @@
+---
+// Раздел «Товары» (эталон – Elite Rose): те же товары, что в каталогах сайта, на главной и в допродаже
+// (src/data/products.json), включая скрытые. Разделы – дерево src/data/parts.json (у Milovini есть подразделы).
+import Admin from '../../layouts/Admin.astro';
+import ProductsAdmin from '../../islands/admin/ProductsAdmin';
+import { allProducts, parts } from '../../lib/catalog';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Admin title="Товары" active="products">
+  <ProductsAdmin client:load items={allProducts} parts={parts} base={base} />
+</Admin>
