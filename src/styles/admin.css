@@ -172,3 +172,6 @@ details.pcat[open] .caret{transform:rotate(90deg)}
 .kb__card[draggable]{cursor:grab}
 .kb__card.is-drag{opacity:.45}
 .topnav .tab .lk{font-size:11px;opacity:.8}
+.pa__side button.sub{font-size:13px;color:#55605d}
+.pa__side button.sub.on{color:#fff}
+.pa__newpart select{height:34px;padding:0 8px;border:1px solid #d9dedc;border-radius:7px;font:inherit;font-size:12.5px;background:#fff}
