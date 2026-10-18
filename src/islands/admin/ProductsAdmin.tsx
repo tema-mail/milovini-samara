@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Product, Part } from '../../lib/catalog';
 import ProductEditor, { type AdmProduct } from './ProductEditor';
 import CsvImport from './CsvImport';
@@ -58,9 +58,12 @@ export default function ProductsAdmin({ items, parts: initParts, base }: { items
   const [status, setStatus] = useState<Status>({ kind: 'idle', text: '' });
 
   // С ключом – берём свежие данные прямо из репозитория: собранный сайт отстаёт на время сборки.
+  // Счётчик сохранений: подгрузка, начатая до сохранения, не должна затереть его результат (найдено живым тестом 18.10.2026).
+  const saves = useRef(0);
   const reload = async () => {
+    const mark = saves.current;
     const [p, pt] = await Promise.all([readJson<Product[]>(PRODUCTS_PATH), readJson<Part[]>(PARTS_PATH)]);
-    setRaw(p); setParts(pt);
+    if (mark === saves.current) { setRaw(p); setParts(pt); }
   };
   useEffect(() => { if (getToken()) { setConnected(true); reload().catch(() => setStatus({ kind: 'error', text: 'Не удалось загрузить данные из GitHub – проверьте ключ' })); } }, []);
 
@@ -101,15 +104,23 @@ export default function ProductsAdmin({ items, parts: initParts, base }: { items
     return out;
   }, [list, part, q, sort, flat]);
 
-  /** Сохранить новый список товаров (и, если есть, разделы и фото) одним коммитом. */
-  const persist = async (nextRaw: Product[], message: string, extra: FileChange[] = [], nextParts?: Part[]) => {
-    setRaw(nextRaw); if (nextParts) setParts(nextParts);
+  /** Сохранить изменение одним коммитом. Изменение – правило над списком товаров (и разделов), а не готовый список:
+   *  перед записью данные читаются из репозитория заново, и правило накладывается на них. Так сохранение не откатывает
+   *  чужие или более ранние правки (вторая вкладка, незавершённая подгрузка). */
+  const persist = async (mut: (list: Product[]) => Product[], message: string, extra: FileChange[] = [], mutParts?: (pt: Part[]) => Part[]) => {
+    saves.current++;
+    setRaw((r) => mut(r)); if (mutParts) setParts((pt) => mutParts(pt));
     if (!connected) { setStatus({ kind: 'error', text: 'Изменение видно только у вас – подключите сохранение, чтобы оно попало на сайт' }); return; }
     setStatus({ kind: 'saving', text: 'Сохраняем…' });
     try {
+      const [freshP, freshPt] = await Promise.all([readJson<Product[]>(PRODUCTS_PATH), mutParts ? readJson<Part[]>(PARTS_PATH) : Promise.resolve(null)]);
+      const nextRaw = mut(freshP);
       const files: FileChange[] = [{ path: PRODUCTS_PATH, text: JSON.stringify(nextRaw, null, 1) + '\n' }, ...extra];
-      if (nextParts) files.push({ path: PARTS_PATH, text: JSON.stringify(nextParts, null, 1) + '\n' });
+      let nextParts: Part[] | null = null;
+      if (mutParts && freshPt) { nextParts = mutParts(freshPt); files.push({ path: PARTS_PATH, text: JSON.stringify(nextParts, null, 1) + '\n' }); }
       const sha = await commit(files, `Админка: ${message}`);
+      saves.current++;
+      setRaw(nextRaw); if (nextParts) setParts(nextParts);
       setStatus({ kind: 'building', text: 'Сохранено. Сайт обновляется – обычно около минуты', sha });
     } catch (e: any) {
       setStatus({ kind: 'error', text: `Не сохранилось: ${humanError(e)}` });
@@ -130,7 +141,7 @@ export default function ProductsAdmin({ items, parts: initParts, base }: { items
       images.push(`/img/up/${id}-${n}`);
       n++;
     }
-    const next: Product = {
+    const build = (old: Product | undefined): Product => ({
       ...(old ?? { sort: 0 }),
       id, path: old?.path ?? `/catalog/tproduct/${id}-${slugify(p.title)}`,
       // описание не трогали – сохраняем исходную разметку (<strong>Состав:</strong> и т. п.); правили – текст построчно
@@ -138,24 +149,24 @@ export default function ProductsAdmin({ items, parts: initParts, base }: { items
       price: p.price, priceOld: p.priceOld, mark: p.mark.trim(), stock: p.qty.trim() ? Number(p.qty.replace(/\D/g, '')) : null,
       parts: p.parts, images, sku: p.sku.trim(), hidden: !p.visible,
       ...(p.seoTitle ? { seoTitle: p.seoTitle } : {}), ...(p.seoDescr ? { seoDescr: p.seoDescr } : {}),
-    } as Product;
-    const nextRaw = isNew ? [next, ...raw] : raw.map((x) => (x.id === id ? next : x));
+    } as Product);
+    const next = build(old);
     setEdit(null);
     if (!isNew && !uploads.length && JSON.stringify(old) === JSON.stringify(next)) return setStatus({ kind: 'done', text: 'Изменений нет – сохранять нечего' });
-    await persist(nextRaw, `${isNew ? 'новый товар' : 'товар'} «${next.title}»`, uploads);
+    await persist((list) => (isNew ? [build(undefined), ...list] : list.map((x) => (x.id === id ? build(x) : x))), `${isNew ? 'новый товар' : 'товар'} «${next.title}»`, uploads);
   };
 
   const remove = async (p: AdmProduct) => {
     if (!confirm(`Удалить товар «${p.title}» с сайта насовсем? Скрыть его можно переключателем «На сайте».`)) return;
     setEdit(null);
-    await persist(raw.filter((x) => x.id !== p.id), `удалён товар «${p.title}»`);
+    await persist((list) => list.filter((x) => x.id !== p.id), `удалён товар «${p.title}»`);
   };
 
   const setVisible = (ids: string[], visible: boolean) =>
-    persist(raw.map((x) => (ids.includes(x.id) ? { ...x, hidden: !visible } : x)), `${visible ? 'показано' : 'скрыто'} на сайте: ${ids.length} шт.`);
+    persist((list) => list.map((x) => (ids.includes(x.id) ? { ...x, hidden: !visible } : x)), `${visible ? 'показано' : 'скрыто'} на сайте: ${ids.length} шт.`);
 
   const addToPart = (ids: string[], pid: string) =>
-    persist(raw.map((x) => (ids.includes(x.id) && !x.parts.includes(pid) ? { ...x, parts: [...x.parts, pid] } : x)), `в раздел «${title(pid)}»: ${ids.length} шт.`);
+    persist((list) => list.map((x) => (ids.includes(x.id) && !x.parts.includes(pid) ? { ...x, parts: [...x.parts, pid] } : x)), `в раздел «${title(pid)}»: ${ids.length} шт.`);
 
   const createPart = async (name: string) => {
     const t = name.trim();
@@ -164,9 +175,8 @@ export default function ProductsAdmin({ items, parts: initParts, base }: { items
     let id = slugify(t); while (flat.some((p) => p.id === id)) id += '-2';
     setNewPart(null);
     const ids = [...sel];
-    const nextRaw = ids.length ? raw.map((x) => (sel.has(x.id) ? { ...x, parts: [...x.parts, id] } : x)) : raw;
     const parent = newParent || null;
-    await persist(nextRaw, `новый раздел «${t}»${parent ? ` в «${title(parent)}»` : ''}${ids.length ? ` + ${ids.length} товаров` : ''}`, [], insertPart(parts, { id, title: t, parent, children: [] }, parent));
+    await persist((list) => (ids.length ? list.map((x) => (ids.includes(x.id) ? { ...x, parts: [...x.parts, id] } : x)) : list), `новый раздел «${t}»${parent ? ` в «${title(parent)}»` : ''}${ids.length ? ` + ${ids.length} товаров` : ''}`, [], (pt) => insertPart(pt, { id, title: t, parent, children: [] }, parent));
     setNewParent('');
     setSel(new Set()); setPart(id);
   };
