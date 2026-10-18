@@ -1,0 +1,44 @@
+---
+/** Каркас кабинета-стандарта (стенд Milovini): вкладки и шапка как у Elite Rose / ALEX KROWN v1, адрес сайта справа,
+    «Выйти». Весь кабинет закрыт логином и паролем (scripts/lock-admin.mjs при публикации). Закрыт от поиска.
+    Вкладки – решение владельца 18.10.2026: «Продаж» нет (магазин без онлайн-оплаты, заказ = заявка), Точки А в интерфейсе
+    нет; Метрика, SEO-аналитика, Позиции, Рекомендации – закрытые разделы (src/components/admin/Locked.astro). */
+import '../styles/admin.css';
+import { u } from '../lib/url';
+import { allProducts } from '../lib/catalog';
+type Tab = 'pages' | 'products' | 'leads' | 'metrika' | 'seo' | 'positions' | 'recommendations';
+interface Props { title: string; active: Tab }
+const { title, active } = Astro.props;
+const site = new URL(u('/'), Astro.site).href;
+const tabs: [Tab, string, string, string][] = [
+  ['pages', '/admin/', 'Страницы сайта', ''],
+  ['products', '/admin/products/', 'Товары', String(allProducts.length)],
+  ['leads', '/admin/leads/', 'Заявки', ''],
+  ['metrika', '/admin/metrika/', 'Метрика', '🔒'],
+  ['seo', '/admin/seo/', 'SEO-аналитика', '🔒'],
+  ['positions', '/admin/positions/', 'Позиции', '🔒'],
+  ['recommendations', '/admin/recommendations/', 'Рекомендации', '🔒'],
+];
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} – админка Milovini</title>
+    <link rel="icon" href={u('/favicon.svg')} type="image/svg+xml" />
+  </head>
+  <body class="adm">
+    <nav class="topnav" aria-label="Разделы админки">
+      <span class="brand"><img src={u('/favicon.svg')} alt="" />MILOVINI</span>
+      {tabs.map(([key, href, label, n]) => (
+        <a class:list={['tab', { on: active === key }]} href={u(href)}>{label}{n && (n === '🔒' ? <span class="lk" aria-label="раздел закрыт"> 🔒</span> : <span class="n">{n}</span>)}</a>
+      ))}
+      <span class="site">Сайт: <a href={site} target="_blank" rel="noopener">{site.replace(/^https?:\/\//, '')}</a></span>
+      {/* выход из кабинета (вход – scripts/lock-admin.mjs), стирает оба входа – как «Выйти» у EV / ALEX KROWN */}
+      <button type="button" class="logout" onclick="try{sessionStorage.removeItem('mv_admin_auth');localStorage.removeItem('mv_admin_keep')}catch(e){};location.reload()" style="background:none;border:0;color:rgba(255,255,255,.75);font:inherit;font-size:13px;cursor:pointer;padding:0">Выйти</button>
+    </nav>
+    <main><slot /></main>
+  </body>
+</html>
