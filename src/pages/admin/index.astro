@@ -1,0 +1,106 @@
+---
+// Страницы сайта по сущностям (эталон – Elite Rose, src/pages/admin/index.astro): Главная, Каталоги (раскрываются –
+// внутри карточки товара; карточка из нескольких каталогов показана в каждом, считается один раз), Внутренние страницы,
+// Блог (отдельно – владелец 18.10.2026: «статьи блога отдельно надо»), Юридические, Технические.
+import Admin from '../../layouts/Admin.astro';
+import { allProducts, inPart, type Product } from '../../lib/catalog';
+import { CATALOGS } from '../../lib/site';
+import { img } from '../../lib/img';
+import { u } from '../../lib/url';
+import posts from '../../data/posts.json';
+
+const site = (p: string) => new URL(u(p), Astro.site).href;
+const inCatalog = (c: (typeof CATALOGS)[number] & { match?: string }) => allProducts.filter((p) => inPart(p, c.part) || (c.match ? p.title.includes(c.match) : false));
+const inner = [
+  { name: 'О компании', path: '/about' }, { name: 'Гарантии', path: '/garantee' }, { name: 'Доставка и оплата', path: '/delivery' },
+  { name: 'Контакты', path: '/contact' }, { name: 'Корпоративным клиентам', path: '/corparate' }, { name: 'Акции', path: '/akcii' },
+];
+const legal = [{ name: 'Политика конфиденциальности', path: '/policy' }, { name: 'Пользовательское соглашение', path: '/agreement' }];
+const tech = [{ name: 'Оформление заказа', path: '/order' }, { name: 'Избранное', path: '/favorites' }, { name: 'Спасибо', path: '/thanks' }, { name: 'Страница не найдена', path: '/404' }];
+const visible = allProducts.filter((p) => !p.hidden).length;
+// Страниц на сайте: главная + общий каталог + страницы-каталоги + карточки (видимые) + внутренние + блог + юридические + технические
+const total = 1 + 1 + CATALOGS.length + visible + inner.length + posts.length + legal.length + tech.length;
+const card = (p: Product) => ({ p, thumb: u(p.images[0] + '-480.webp') });
+---
+<Admin title="Страницы сайта" active="pages">
+  <div class="tools">
+    <h1>Страницы сайта</h1>
+    <span class="muted">{total} страниц · из них {visible} карточек товара{allProducts.length > visible && ` (ещё ${allProducts.length - visible} скрыто)`}</span>
+    <a class="btn" href={u('/')} target="_blank">Открыть сайт ↗</a>
+  </div>
+  <div class="pages">
+    <div class="phead"><span></span><span>Страница</span><span>Адрес</span><span style="text-align:right">Сущность</span></div>
+
+    <div class="pgroup">Главная <span>1</span></div>
+    <div class="prow">
+      <span class="thumb"></span>
+      <div><span class="pname">Главная</span><div class="muted" style="font-size:12px">Доставка цветов в Самаре 24/7 – Milovini Flowers</div></div>
+      <a class="purl" href={u('/')} target="_blank">{site('/')}</a>
+      <span class="pkind">Главная</span>
+    </div>
+
+    <div class="pgroup">Каталоги <span>{1 + CATALOGS.length} · {visible} карточек товара</span></div>
+    <details class="pcat">
+      <summary class="prow">
+        <span class="thumb"></span>
+        <div><span class="pname"><i class="caret"></i>Общий каталог</span><div class="muted" style="font-size:12px">все {allProducts.length} товаров, фильтр по разделам</div></div>
+        <a class="purl" href={u('/catalog')} target="_blank" onclick="event.stopPropagation()">{site('/catalog')}</a>
+        <span class="pkind">Каталог</span>
+      </summary>
+      {allProducts.map((p) => (
+        <div class="prow lvl1">
+          <img class="thumb" src={card(p).thumb} alt="" loading="lazy" />
+          <div><span class="pname">{p.title}{p.hidden && <span class="chip" style="margin-left:8px">скрыт</span>}</span><div class="muted" style="font-size:12px">{p.price?.toLocaleString('ru-RU')} ₽</div></div>
+          <a class="purl" href={u(p.path)} target="_blank">{p.path}</a>
+          <span class="pkind">Карточка товара</span>
+        </div>
+      ))}
+    </details>
+    {CATALOGS.map((c) => {
+      const list = inCatalog(c);
+      return (
+        <details class="pcat">
+          <summary class="prow">
+            <img class="thumb" src={img(c.image, 800)} alt="" loading="lazy" />
+            <div><span class="pname"><i class="caret"></i>Каталог «{c.title}»</span><div class="muted" style="font-size:12px">{list.length} товаров</div></div>
+            <a class="purl" href={u(`/catalog/${c.slug}`)} target="_blank" onclick="event.stopPropagation()">{site(`/catalog/${c.slug}`)}</a>
+            <span class="pkind">Каталог</span>
+          </summary>
+          {list.map((p) => (
+            <div class="prow lvl1">
+              <img class="thumb" src={card(p).thumb} alt="" loading="lazy" />
+              <div><span class="pname">{p.title}{p.hidden && <span class="chip" style="margin-left:8px">скрыт</span>}</span><div class="muted" style="font-size:12px">{p.price?.toLocaleString('ru-RU')} ₽</div></div>
+              <a class="purl" href={u(p.path)} target="_blank">{p.path}</a>
+              <span class="pkind">Карточка товара</span>
+            </div>
+          ))}
+        </details>
+      );
+    })}
+
+    <div class="pgroup">Внутренние страницы <span>{inner.length}</span></div>
+    {inner.map((t) => (
+      <div class="prow"><span class="thumb"></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Страница</span></div>
+    ))}
+
+    <div class="pgroup">Блог <span>{posts.length} статьи</span></div>
+    {posts.map((p) => (
+      <div class="prow">
+        {p.image ? <img class="thumb" src={u(p.image + '-600.webp')} alt="" loading="lazy" /> : <span class="thumb"></span>}
+        <div><span class="pname">{p.title}</span><div class="muted" style="font-size:12px">{new Date(p.date.replace(' ', 'T')).toLocaleDateString('ru-RU')}</div></div>
+        <a class="purl" href={u(p.path)} target="_blank">{p.path}</a>
+        <span class="pkind">Статья блога</span>
+      </div>
+    ))}
+
+    <div class="pgroup">Юридические страницы <span>{legal.length}</span></div>
+    {legal.map((t) => (
+      <div class="prow"><span class="thumb"></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Юридическая</span></div>
+    ))}
+
+    <div class="pgroup">Технические страницы <span>{tech.length}</span></div>
+    {tech.map((t) => (
+      <div class="prow"><span class="thumb"></span><span class="pname">{t.name}</span><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">Техническая</span></div>
+    ))}
+  </div>
+</Admin>
