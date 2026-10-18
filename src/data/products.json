@@ -1,25 +1,5 @@
 [
  {
-  "sort": 0,
-  "id": "1792311810609",
-  "path": "/catalog/tproduct/1792311810609-testovyy-buket",
-  "title": "Тестовый букет",
-  "descr": "",
-  "text": "",
-  "price": 1234,
-  "priceOld": null,
-  "mark": "",
-  "stock": null,
-  "parts": [
-   "341115852183"
-  ],
-  "images": [
-   "/img/up/1792311810609-0"
-  ],
-  "sku": "MV-0256",
-  "hidden": false
- },
- {
   "id": "183559578783",
   "path": "/catalog/tproduct/183559578783-iskushenie",
   "title": "Искушение",
