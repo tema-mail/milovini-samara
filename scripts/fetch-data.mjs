@@ -6,6 +6,7 @@ import { mkdir, writeFile, readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
+import { execFileSync } from 'node:child_process';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DATA = path.join(ROOT, 'src/data');
@@ -81,7 +82,17 @@ const dump = (v) => JSON.stringify(v, null, 1).replace(/\u2014/g, '\u2013');
 
 const num = (v) => (v === '' || v == null ? null : Math.round(parseFloat(v)));
 
+/** Защита правок админки: если товары или разделы последним менял коммит «Админка: …», снятие с Тильды
+ *  затёрло бы их – останавливаемся (обойти – флаг --force). Правило владельца 16.10.2026. */
+function guardAdminEdits() {
+  if (process.argv.includes('--force')) return;
+  let last = '';
+  try { last = execFileSync('git', ['log', '-1', '--format=%s', '--', 'src/data/products.json', 'src/data/parts.json'], { cwd: ROOT }).toString().trim(); } catch {}
+  if (last.startsWith('Админка:')) throw new Error(`Товары правились в админке («${last}») – снятие с Тильды их затрёт. Остановлено; осознанно перезаписать – npm run data -- --force`);
+}
+
 async function store() {
+  guardAdminEdits();
   const c = Date.now();
   const d = await getJson(`https://store.tildaapi.com/api/getproductslist/?storepartuid=${STOREPART}&recid=${STORE_REC}&c=${c}&getparts=true&getoptions=true&slice=1&size=500`);
   const walk = (ps, parent = null) => ps.map((p) => ({

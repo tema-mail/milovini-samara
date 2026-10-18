@@ -14,6 +14,11 @@ export interface Product {
   parts: string[];
   sort: number;
   images: string[];
+  sku?: string;
+  /** Выключен в админке («На сайте») – на сайте не показывается, страница товара не собирается. */
+  hidden?: boolean;
+  seoTitle?: string;
+  seoDescr?: string;
 }
 export interface Part { id: string; title: string; parent: string | null; children: Part[] }
 
@@ -24,7 +29,10 @@ export interface Card {
   parts: string[]; stock: number | null;
 }
 
-export const products = productsJson as Product[];
+/** Все товары, включая скрытые – для админки. */
+export const allProducts = productsJson as Product[];
+/** Товары, которые видны на сайте (каталоги, главная, поиск, карточки, допродажа). */
+export const products = allProducts.filter((p) => !p.hidden);
 export const parts = partsJson as Part[];
 
 const flat: Part[] = [];
