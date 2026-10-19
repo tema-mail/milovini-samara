@@ -207,7 +207,8 @@ def card_html(p) -> str:
 def routes(site_root: pathlib.Path):
     for f in sorted(site_root.rglob("index.html")):
         rel = f.parent.relative_to(site_root).as_posix()
-        if rel.startswith("admin") or rel.startswith("_astro"):
+        # кабинет покупателя (/lk/) – не страница сайта для продвижения: в «Страницы сайта» админки не попадает
+        if rel.startswith("admin") or rel.startswith("_astro") or rel == "lk" or rel.startswith("lk/"):
             continue
         yield "/" if rel == "." else f"/{rel}/"
 

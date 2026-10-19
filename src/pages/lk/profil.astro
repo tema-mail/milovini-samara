@@ -1,0 +1,14 @@
+---
+// Кабинет: профиль (docs/ПЛАН-ЛК.md, решение 8). Данные – только в браузере (client:only).
+import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import LkProfile from '../../islands/LkProfile';
+import '../../styles/lk.css';
+---
+<Base title="Профиль – Milovini Flowers" noindex noSticky>
+  <section class="container lk-page">
+    <Crumbs items={[{ label: 'Главная', href: '/' }, { label: 'Личный кабинет', href: '/lk/' }, { label: 'Профиль' }]} />
+    <h1 class="h1">Профиль</h1>
+    <LkProfile client:only="preact" />
+  </section>
+</Base>
