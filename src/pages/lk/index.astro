@@ -1,0 +1,14 @@
+---
+// Личный кабинет: вход и главная (docs/ПЛАН-ЛК.md, решение 8). Данные кабинета – только в браузере (client:only).
+import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import LkHome from '../../islands/LkHome';
+import '../../styles/lk.css';
+---
+<Base title="Личный кабинет – Milovini Flowers" noindex noSticky>
+  <section class="container lk-page">
+    <Crumbs items={[{ label: 'Главная', href: '/' }, { label: 'Личный кабинет' }]} />
+    <h1 class="h1">Личный кабинет</h1>
+    <LkHome client:only="preact" />
+  </section>
+</Base>

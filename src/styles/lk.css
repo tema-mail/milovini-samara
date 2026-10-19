@@ -1,0 +1,78 @@
+/* Личный кабинет покупателя (docs/ПЛАН-ЛК.md, решение 9): токены Milovini – розовый, лиловый, Comfortaa в заголовках.
+   Телефон 390 px – одна колонка без горизонтальной прокрутки; с 1024 px – сетка из двух колонок. */
+.lk-page { padding-top: 24px; padding-bottom: 64px; display: grid; gap: 24px; }
+.lk { display: grid; gap: 20px; min-width: 0; }
+.lk-h2 { font: 700 26px/1.2 var(--head-font); color: var(--ink); margin: 0; }
+.lk-h3 { font: 700 19px/1.25 var(--head-font); color: var(--ink); margin: 0; }
+.lk-label { margin: 0; font: 600 12px/1.3 var(--body-font); letter-spacing: .08em; text-transform: uppercase; color: var(--mauve); }
+.lk-wait { color: var(--muted); }
+.link { background: none; border: 0; padding: 0; color: var(--mauve); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; justify-self: start; }
+
+/* вкладки */
+.lk-nav { display: flex; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.lk-nav::-webkit-scrollbar { display: none; }
+.lk-nav a { flex: none; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); font: 500 14px/1 var(--body-font); color: var(--ink); background: var(--white); }
+.lk-nav a:hover { border-color: var(--mauve); }
+.lk-nav a.is-on { background: var(--mauve); border-color: var(--mauve); color: var(--white); }
+.lk-nav__out { margin-left: auto; flex: none; background: none; border: 0; color: var(--muted); font: 500 14px/1 var(--body-font); cursor: pointer; padding: 10px 4px; }
+.lk-nav__out:hover { color: var(--mauve); }
+
+/* плашка «демо» */
+.lk-demo { margin: 0; padding: 12px 16px; border-radius: var(--radius-m); background: var(--bg-soft); font-size: 13px; color: var(--text); }
+
+/* вход */
+.lk-login { max-width: 440px; display: grid; gap: 14px; padding: 32px 28px; border-radius: var(--radius-l); background: var(--white); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.lk-login p { margin: 0; }
+.lk-login__icon { --flower: var(--pink-deep); display: inline-flex; }
+.lk-form { display: grid; gap: 14px; }
+.lk-code { padding: 12px 14px; border-radius: var(--radius-m); background: var(--pink-soft); color: var(--ink); font-size: 14px; }
+.lk-code b { font: 700 20px/1 var(--head-font); letter-spacing: .12em; color: var(--mauve); }
+
+/* карточки */
+.lk-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1024px) { .lk-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.lk-card { display: grid; gap: 12px; align-content: start; min-width: 0; padding: 24px; border-radius: var(--radius-l); background: var(--white); border: 1px solid var(--line); }
+.lk-card p { margin: 0; }
+.lk-card__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.lk-card__head a, .lk-how a { color: var(--mauve); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+
+/* баланс */
+.lk-hero { background: var(--pink); border: 0; position: relative; overflow: hidden; }
+.lk-bal { display: flex; align-items: center; gap: 10px; --flower: var(--white); color: var(--ink); }
+.lk-bal b { font: 700 clamp(40px, 6vw, 56px)/1 var(--head-font); font-variant-numeric: tabular-nums; }
+.lk-bal span { font: 500 16px/1 var(--body-font); }
+.lk-hero__sub { font-size: 14px; color: var(--ink); opacity: .8; }
+.lk-hero__more { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 14px; color: var(--ink); }
+.lk-hero .btn { justify-self: start; margin-top: 4px; }
+
+/* статус */
+.lk-tier__now { font-size: 15px; color: var(--ink); }
+.lk-tier__now b { font: 700 22px/1 var(--head-font); color: var(--mauve); }
+.lk-bar { height: 10px; border-radius: 10px; background: var(--pink-soft); overflow: hidden; }
+.lk-bar i { display: block; height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--pink-deep), var(--mauve)); transition: width .5s var(--ease); }
+.lk-levels { margin: 4px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.lk-levels li { display: grid; gap: 2px; padding: 10px 12px; border-radius: var(--radius-m); border: 1px solid var(--line); font-size: 13px; color: var(--text); }
+.lk-levels li b { font: 700 15px/1.2 var(--head-font); color: var(--ink); }
+.lk-levels li span { font: 700 18px/1 var(--body-font); color: var(--mauve); }
+.lk-levels li small { color: var(--muted); font-size: 11.5px; }
+.lk-levels li.is-on { border-color: var(--mauve); background: var(--pink-soft); }
+
+/* заказы кратко */
+.lk-mini { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.lk-mini li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.lk-mini li:last-child { border-bottom: 0; padding-bottom: 0; }
+.lk-mini li span { color: var(--text); min-width: 0; }
+.lk-mini li b { color: var(--ink); text-align: right; }
+.lk-st { font-style: normal; font-size: 12.5px; color: var(--mauve); }
+.lk-st--cancelled { color: var(--muted); }
+.lk-st--settled, .lk-st--delivered { color: #4f7a5b; }
+
+.lk-how ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; color: var(--text); }
+
+@media (max-width: 1023px) {
+  .lk-nav { flex-wrap: wrap; overflow: visible; gap: 6px; }
+  .lk-nav a { padding: 9px 14px; font-size: 13.5px; }
+  .lk-card { padding: 18px 16px; }
+  .lk-login { padding: 24px 18px; }
+  .lk-levels li { padding: 8px; }
+}
