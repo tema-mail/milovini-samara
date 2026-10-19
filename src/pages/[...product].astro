@@ -70,7 +70,7 @@ const buy = { id: p.id, title: p.title, price: p.price!, img: p.images[0], path:
           <li><b>Фото перед доставкой</b><span>Пришлём фото готового букета на согласование</span></li>
           <li><b>Доставка от 60 минут</b><span>Круглосуточно по Самаре, бесплатно по центру от {FREE_FROM.toLocaleString('ru-RU')} ₽</span></li>
           <li><b>Гарантия 48 часов</b><span>На свежесть цветов с момента доставки</span></li>
-          <li><b>5% бонусов</b><span>Начислим с заказа на следующую покупку</span></li>
+          <li><b><a href={u('/bonusnaya-programma/')}>5% бонусов</a></b><span>Начислим с заказа на следующую покупку</span></li>
         </ul>
         {p.text && (
           <div class="pp__text">
