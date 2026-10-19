@@ -3,7 +3,7 @@ import { maskPhone } from '../lib/phone';
 import type { Account, ShopApi } from '../vendor/shop-engine/shop-engine.js';
 import { LkShell } from './LkHome';
 
-// Кабинет: профиль (docs/ПЛАН-ЛК.md, решение 8). Почта – вход, её не меняют; согласие на рассылку – демо (рассылки нет).
+// Кабинет: профиль (docs/ПЛАН-ЛК.md, решение 8). Почта – вход, её не меняют; согласие на рассылку – отметка (рассылки пока нет).
 
 function ProfileForm({ a, shop }: { a: Account; shop: ShopApi }) {
   const [name, setName] = useState(a.profile.name);
@@ -38,7 +38,7 @@ function ProfileForm({ a, shop }: { a: Account; shop: ShopApi }) {
       <label class="field"><span class="field__label">Дата рождения</span>
         <input class="input" type="date" autoComplete="bday" value={birthday} onInput={(e) => setBirthday((e.target as HTMLInputElement).value)} /></label>
       <label class="check"><input type="checkbox" checked={news} onChange={(e) => setNews((e.target as HTMLInputElement).checked)} />
-        <span>Присылать новости и акции на почту <small class="muted">(демо: рассылки пока нет)</small></span></label>
+        <span>Присылать новости и акции на почту <small class="muted">(рассылки пока нет)</small></span></label>
       {msg && <p class={msg.ok ? 'lk-ok' : 'form-err'} role={msg.ok ? 'status' : 'alert'}>{msg.text}</p>}
       <button type="submit" class="btn btn--mauve" disabled={busy}>Сохранить</button>
     </form>

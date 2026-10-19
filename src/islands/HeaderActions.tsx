@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { cartCount, favs, sheet } from '../lib/store';
-import { pointsWord, snap } from '../lib/loyalty';
+import { API_MODE, pointsWord, snap } from '../lib/loyalty';
 import { u } from '../lib/url';
 import { IconBag, IconFlower, IconHeart, IconSearch } from './icons';
 
@@ -21,10 +21,10 @@ export default function HeaderActions({ variant }: { variant: 'desktop' | 'mobil
         </button>
       )}
       {me ? (
-        <a class="ha__lk ha__lk--in" href={u('/lk/')} title="Личный кабинет: баллы в демо-режиме хранятся в этом браузере">
+        <a class="ha__lk ha__lk--in" href={u('/lk/')} title={API_MODE ? 'Личный кабинет: ваши баллы' : 'Личный кабинет: баллы в демо-режиме хранятся в этом браузере'}>
           <IconFlower size={18} /> <b>{me.available.toLocaleString('ru-RU')}</b>
           <span class="ha__lk-label">{pointsWord(me.available)}</span>
-          <small class="ha__demo">демо</small>
+          {!API_MODE && <small class="ha__demo">демо</small>}
         </a>
       ) : (
         <a class="ha__lk" href={u('/lk/')} aria-label="Войти в личный кабинет">

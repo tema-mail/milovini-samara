@@ -7,7 +7,7 @@ import SectionHead from '../components/SectionHead.astro';
 import Faq from '../components/Faq.astro';
 import FinalCta from '../components/FinalCta.astro';
 import { IconFlower } from '../islands/icons';
-import { PROGRAM } from '../lib/loyalty';
+import { API_MODE, PROGRAM } from '../lib/loyalty';
 import { u } from '../lib/url';
 const T = 'https://static.tildacdn.com/';
 const rub = (n: number) => n.toLocaleString('ru-RU') + ' ₽';
@@ -50,7 +50,11 @@ const faq = [
       <li><b>Получайте баллы</b><span>Через {PROGRAM.returnDays === 1 ? 'сутки' : `${PROGRAM.returnDays} дн.`} после доставки баллы становятся доступны.</span></li>
       <li><b>Тратьте</b><span>Оплачивайте баллами до {PROGRAM.maxRedeemPercent}% следующего заказа.</span></li>
     </ol>
-    <p class="bp-note">Кабинет на этом сайте сейчас работает в демо-режиме: баллы хранятся в браузере, письмо с кодом не отправляется – код покажем на экране. <a href={u('/lk/')}>Открыть кабинет</a></p>
+    {API_MODE ? (
+      <p class="bp-note">Оплатить заказ баллами – напишите об этом в комментарии к заказу: флорист учтёт, баллы спишем в кабинете. <a href={u('/lk/')}>Открыть кабинет</a></p>
+    ) : (
+      <p class="bp-note">Кабинет на этом сайте сейчас работает в демо-режиме: баллы хранятся в браузере, письмо с кодом не отправляется – код покажем на экране. <a href={u('/lk/')}>Открыть кабинет</a></p>
+    )}
   </section>
   <Faq items={faq} title="Вопросы о баллах" />
   <FinalCta />
