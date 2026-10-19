@@ -1,6 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { DataError, getShop, pointsWord, resetCabinet } from '../lib/loyalty';
+import { API_MODE, DataError, getShop, pointsWord, resetCabinet } from '../lib/loyalty';
+import { STAND } from '../lib/forms';
 import { fmt } from '../lib/store';
 import { u } from '../lib/url';
 import type { Account, ShopApi } from '../vendor/shop-engine/shop-engine.js';
@@ -22,6 +23,14 @@ export const pts = (n: number) => `${n.toLocaleString('ru-RU')} ${pointsWord(n)}
 export const dateRu = (iso: string) => new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
 function Demo() {
+  if (API_MODE) {
+    return STAND ? (
+      <p class="lk-demo">
+        <b>Тестовый стенд.</b> Кабинет и баллы – в базе магазина, баллы начисляет и списывает владелец в админке.
+        Письмо с кодом не уходит на почту – код смотрите в перехватчике писем стенда.
+      </p>
+    ) : null;
+  }
   return (
     <p class="lk-demo">
       <b>Демо-кабинет.</b> Данные хранятся только в этом браузере, письмо с кодом не отправляется – код покажем на экране.
@@ -72,10 +81,18 @@ function Login({ shop }: { shop: ShopApi }) {
           <button type="submit" class="btn btn--mauve btn--block" disabled={busy}>Получить код</button>
         </form>
       ) : (
-        <form class="lk-form" onSubmit={run(async (form) => { await shop.verify(sent, field(form, 'code')); })}>
+        <form class="lk-form" onSubmit={run(async (form) => {
+          // согласие – только отмеченное: вошедший раньше входит и без галочки, новому сервер ответит, что она нужна
+          const agreed = (form.elements.namedItem('pdn') as HTMLInputElement | null)?.checked;
+          await shop.verify(sent, field(form, 'code'), agreed ? { pdn: true } : undefined);
+        })}>
           {demoCode && <p class="lk-code">Демо: письмо не отправляется. Код для входа – <b>{demoCode}</b></p>}
           <label class="field"><span class="field__label">Код из письма для {sent}</span>
             <input ref={first} class="input" name="code" inputMode="numeric" autoComplete="one-time-code" required maxLength={8} /></label>
+          {API_MODE && (
+            <label class="check"><input type="checkbox" name="pdn" />
+              <span>Согласен на обработку персональных данных по <a href={u('/policy')} target="_blank" rel="noopener">политике</a> – нужно при первом входе</span></label>
+          )}
           <button type="submit" class="btn btn--mauve btn--block" disabled={busy}>Войти</button>
           <button type="button" class="link" onClick={() => { setSent(null); setDemoCode(''); }}>Другая почта</button>
         </form>

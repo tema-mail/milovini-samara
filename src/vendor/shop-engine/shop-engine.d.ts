@@ -97,7 +97,14 @@ export interface ShopApi {
     requestCode(email: string): Promise<{
         demoCode?: string;
     }>;
-    verify(email: string, code: string): Promise<void>;
+    /**
+     * consent – согласия при первом входе (регистрация на сервере требует согласия на обработку ПДн; демо – не нужно).
+     * Галочка не стоит – consent не передаётся (не { pdn: false }): вошедший раньше войдёт и без неё.
+     */
+    verify(email: string, code: string, consent?: {
+        pdn: true;
+        marketing?: boolean;
+    }): Promise<void>;
     logout(): Promise<void>;
     /** Кто вошёл – лёгкий запрос для шапки; null – гость. */
     me(): Promise<{
@@ -131,7 +138,7 @@ export interface ShopApi {
     }>;
     cancelOrder(orderId: string): Promise<void>;
     updateProfile(patch: Partial<Omit<Profile, "email">>): Promise<void>;
-    /** Изменения в этой вкладке и в соседних; возвращает отписку. */
+    /** Изменения в этой вкладке (демо – и в соседних: общее хранилище); возвращает отписку. */
     subscribe(fn: () => void): () => void;
     /** Только путь А: то, что в бою делает магазин. */
     demo?: {
@@ -156,3 +163,10 @@ export interface DemoShopInput {
     now?: () => Date;
 }
 export declare function createDemoShop(input: DemoShopInput): ShopApi;
+export declare class ShopApiError extends Error {
+    readonly status: number;
+    readonly code: string;
+    constructor(status: number, code: string, message: string);
+}
+/** `base` – адрес API без хвоста ("" – тот же хост, что сайт). `fetchImpl` – для тестов. */
+export declare function createApiShop(base?: string, fetchImpl?: typeof fetch): ShopApi;

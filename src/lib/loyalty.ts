@@ -7,6 +7,12 @@ import type { LoyaltyProgram, ShopApi } from '../vendor/shop-engine/shop-engine.
 // Обновление движка: в shop-modules `npm run build:sdk`, затем скопировать sdk/browser/dist/shop-engine.js и SOURCE,
 // а index.d.ts – как shop-engine.d.ts; руками не править.
 
+/**
+ * Где живёт кабинет (ПЛАН-S7e shop-modules, решение 9): по умолчанию – демо в браузере (Pages); сборка с
+ * PUBLIC_LOYALTY=api – сервер магазина на том же хосте (/api): общая база, баллы правит владелец в админке.
+ */
+export const API_MODE = import.meta.env.PUBLIC_LOYALTY === 'api';
+
 /** Правила программы – утверждены владельцем 19.10.2026. */
 export const PROGRAM: LoyaltyProgram = {
   signupBonus: 300,
@@ -98,31 +104,51 @@ let pending: Promise<ShopApi> | null = null;
  * с текстом для покупателя; resetCabinet() стирает только данные кабинета.
  */
 export function getShop(): Promise<ShopApi> {
-  pending ??= (async () => {
-    let mods;
-    try {
-      mods = await Promise.all([import('../vendor/shop-engine/shop-engine.js'), import('../data/products.json')]);
-    } catch {
-      // сеть или новая выкладка поменяла файлы – данные кабинета целы, сбрасывать нечего
-      throw new LoadError('Кабинет не загрузился – проверьте интернет и обновите страницу.');
-    }
-    const [{ createDemoShop }, data] = mods;
-    const products = (data.default as { id: string; title: string; price: number | null; hidden?: boolean }[])
-      .filter((p) => !p.hidden && typeof p.price === 'number' && p.price > 0)
-      .map((p) => ({ id: p.id, title: p.title, priceRub: p.price as number }));
-    try {
-      const shop = createDemoShop({ products, program: PROGRAM, storagePrefix: ENGINE_PREFIX });
-      await refresh(shop);
-      shop.subscribe(() => void refresh(shop)); // после удачного первого снимка: упади он – экземпляр выброшен без подписки
-      return shop;
-    } catch (e) {
-      throw new DataError(`Кабинет не открылся: ${e instanceof Error ? e.message : 'ошибка в данных браузера'}. Можно сбросить данные кабинета.`);
-    }
-  })().catch((e: unknown) => {
+  pending ??= (API_MODE ? openApiShop() : openDemoShop()).catch((e: unknown) => {
     pending = null;
     throw e;
   });
   return pending;
+}
+
+/** Кабинет на сервере: правила программы и товары – в магазине, здесь только клиент. */
+async function openApiShop(): Promise<ShopApi> {
+  let mod;
+  try {
+    mod = await import('../vendor/shop-engine/shop-engine.js');
+  } catch {
+    throw new LoadError('Кабинет не загрузился – проверьте интернет и обновите страницу.');
+  }
+  const shop = mod.createApiShop('');
+  try {
+    await refresh(shop);
+  } catch {
+    throw new LoadError('Кабинет сейчас не отвечает – обновите страницу через минуту.');
+  }
+  shop.subscribe(() => void refresh(shop).catch(() => undefined));
+  return shop;
+}
+
+async function openDemoShop(): Promise<ShopApi> {
+  let mods;
+  try {
+    mods = await Promise.all([import('../vendor/shop-engine/shop-engine.js'), import('../data/products.json')]);
+  } catch {
+    // сеть или новая выкладка поменяла файлы – данные кабинета целы, сбрасывать нечего
+    throw new LoadError('Кабинет не загрузился – проверьте интернет и обновите страницу.');
+  }
+  const [{ createDemoShop }, data] = mods;
+  const products = (data.default as { id: string; title: string; price: number | null; hidden?: boolean }[])
+    .filter((p) => !p.hidden && typeof p.price === 'number' && p.price > 0)
+    .map((p) => ({ id: p.id, title: p.title, priceRub: p.price as number }));
+  try {
+    const shop = createDemoShop({ products, program: PROGRAM, storagePrefix: ENGINE_PREFIX });
+    await refresh(shop);
+    shop.subscribe(() => void refresh(shop)); // после удачного первого снимка: упади он – экземпляр выброшен без подписки
+    return shop;
+  } catch (e) {
+    throw new DataError(`Кабинет не открылся: ${e instanceof Error ? e.message : 'ошибка в данных браузера'}. Можно сбросить данные кабинета.`);
+  }
 }
 
 /** Не загрузились файлы кабинета – повторить, данные не трогать. */
