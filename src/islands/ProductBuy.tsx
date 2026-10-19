@@ -2,6 +2,8 @@ import { useEffect, useState } from 'preact/hooks';
 import { addToCart, cart, favs, sheet, toggleFav } from '../lib/store';
 import { u } from '../lib/url';
 import { IconBag, IconHeart, IconMinus, IconPlus } from './icons';
+import { snap } from '../lib/loyalty';
+import Points from './Points';
 
 // Блок покупки на карточке товара: количество, «В корзину», «Оформить сразу», избранное.
 interface P { id: string; title: string; price: number; img: string; path: string; descr: string; stock: number | null }
@@ -34,6 +36,14 @@ export default function ProductBuy({ p }: { p: P }) {
           <IconHeart filled={fav} size={22} />
         </button>
       </div>
+      <p class="pb__pts">
+        <Points price={p.price} qty={qty} size={18} />
+        {ready && snap.value.email !== null ? (
+          <span>за {qty > 1 ? 'эти букеты' : 'этот букет'} – на следующий заказ</span>
+        ) : (
+          <span><a href={u('/lk/')}>Войдите</a>, чтобы копить баллы</span>
+        )}
+      </p>
       <a
         class="btn btn--outline btn--block" href={u('/order')}
         onClick={() => { if (!inCart) addToCart(item, qty); }}

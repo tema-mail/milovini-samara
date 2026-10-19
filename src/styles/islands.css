@@ -204,3 +204,9 @@
   .quiz__nav .btn--outline { padding: 0 18px; }
   .quiz__img { left: 50%; right: auto; transform: translateX(-50%); width: min(88%, 380px); max-height: 320px; }
 }
+
+/* Баллы на странице товара (docs/ПЛАН-ЛК.md, решение 6) */
+.pb__pts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 0; font-size: 13px; color: var(--muted); }
+.pb__pts .pts { font-size: 15px; }
+.pb__pts a { color: var(--mauve); text-decoration: underline; text-underline-offset: 3px; }
+
