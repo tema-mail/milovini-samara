@@ -78,7 +78,7 @@ export const FOOTER = {
 // Плитки преимуществ под первым экраном (иконки – с оригинала).
 const T = 'https://static.tildacdn.com/';
 export const FEATURE = {
-  bonus: { icon: T + 'tild6637-6432-4264-b966-313138663665/Frame_1171275424.svg', text: '5% бонусов с каждого заказа' },
+  bonus: { icon: T + 'tild6637-6432-4264-b966-313138663665/Frame_1171275424.svg', text: '5% бонусов с каждого заказа', href: '/bonusnaya-programma/' },
   allday: { icon: T + 'tild6263-3032-4531-b539-666233343765/Frame_1171275425.svg', text: 'Работаем круглосуточно' },
   guarantee: { icon: T + 'tild6664-6636-4230-b730-396330613038/Frame_1171275422.svg', text: 'Гарантия качества 48 часов' },
   delivery: { icon: T + 'tild3265-6538-4530-b265-623136306364/Frame_1171275423.svg', text: 'Доставка по Самаре от 60 минут' },

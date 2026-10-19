@@ -1,0 +1,78 @@
+---
+// Бонусная программа Milovini (docs/ПЛАН-ЛК.md, решение 8): правила и статусы – из той же константы, что считает
+// кабинет (src/lib/loyalty.ts PROGRAM), чтобы страница и баллы не расходились.
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Faq from '../components/Faq.astro';
+import FinalCta from '../components/FinalCta.astro';
+import { IconFlower } from '../islands/icons';
+import { PROGRAM } from '../lib/loyalty';
+import { u } from '../lib/url';
+const T = 'https://static.tildacdn.com/';
+const rub = (n: number) => n.toLocaleString('ru-RU') + ' ₽';
+const base = PROGRAM.levels[0]!;
+const faq = [
+  { q: 'Сколько стоит один балл?', a: '1 балл = 1 ₽. Баллами можно оплатить до ' + PROGRAM.maxRedeemPercent + '% следующего заказа.' },
+  { q: 'Когда начисляются баллы за заказ?', a: 'Через ' + (PROGRAM.returnDays === 1 ? 'сутки' : PROGRAM.returnDays + ' дн.') + ' после доставки букета. До этого они видны в кабинете как «ждут доставки». Если заказ отменён, баллы за него не начисляются, а потраченные на него баллы возвращаются.' },
+  { q: 'С какой суммы считаются баллы?', a: 'С суммы за букеты, оплаченной деньгами: без доставки и без части, оплаченной баллами.' },
+  { q: 'Как повысить статус?', a: 'Статус растёт с суммой покупок за всё время: «' + PROGRAM.levels.map((l) => l.title + '» – ' + l.percent + '%' + (l.fromRub ? ' от ' + rub(l.fromRub) : ' с первого заказа')).join(', «') + '.' },
+  { q: 'Можно ли совместить баллы и скидку 20% на первый заказ?', a: 'Нет: в первом заказе со скидкой баллы не списываются. Баллы за такой заказ начисляются как обычно.' },
+];
+---
+<Base title="Бонусная программа Milovini – баллы с каждого букета" description={`Копите баллы с каждого заказа цветов в Milovini: ${base.percent}% с первого заказа и до ${PROGRAM.levels.at(-1)!.percent}% для постоянных клиентов. ${PROGRAM.signupBonus} баллов за регистрацию, 1 балл = 1 ₽.`}>
+  <PageHero
+    crumbs={[{ label: 'Главная', href: '/' }, { label: 'Бонусная программа' }]}
+    title="Бонусная программа Milovini"
+    text={`${base.percent}% баллами с каждого заказа, ${PROGRAM.signupBonus} баллов за регистрацию. 1 балл = 1 ₽ – ими можно оплатить до ${PROGRAM.maxRedeemPercent}% следующего букета.`}
+    image={T + 'tild6433-3232-4330-b366-306165653831/image.png'}
+    buttons={[{ label: 'Войти в кабинет', href: '/lk/' }, { label: 'Выбрать букет', href: '/catalog' }]}
+    features={false}
+  />
+  <section class="section container">
+    <SectionHead title="Статусы" sub="Чем больше покупок за всё время, тем больше баллов с каждого заказа" />
+    <ol class="bp-levels">
+      {PROGRAM.levels.map((l) => (
+        <li>
+          <span class="bp-levels__icon"><IconFlower size={36} /></span>
+          <b class="bp-levels__name">{l.title}</b>
+          <span class="bp-levels__pct">{l.percent}%</span>
+          <span class="bp-levels__from">{l.fromRub ? `от ${rub(l.fromRub)} покупок` : 'с первого заказа'}</span>
+        </li>
+      ))}
+    </ol>
+  </section>
+  <section class="section container">
+    <SectionHead title="Как это работает" />
+    <ol class="bp-steps">
+      <li><b>Войдите в кабинет</b><span>По почте и коду. За регистрацию – {PROGRAM.signupBonus} баллов.</span></li>
+      <li><b>Заказывайте букеты</b><span>Над каждым букетом видно, сколько баллов-цветочков вы за него получите.</span></li>
+      <li><b>Получайте баллы</b><span>Через {PROGRAM.returnDays === 1 ? 'сутки' : `${PROGRAM.returnDays} дн.`} после доставки баллы становятся доступны.</span></li>
+      <li><b>Тратьте</b><span>Оплачивайте баллами до {PROGRAM.maxRedeemPercent}% следующего заказа.</span></li>
+    </ol>
+    <p class="bp-note">Кабинет на этом сайте сейчас работает в демо-режиме: баллы хранятся в браузере, письмо с кодом не отправляется – код покажем на экране. <a href={u('/lk/')}>Открыть кабинет</a></p>
+  </section>
+  <Faq items={faq} title="Вопросы о баллах" />
+  <FinalCta />
+</Base>
+
+<style>
+  .bp-levels, .bp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bp-levels li { display: grid; gap: 6px; padding: 28px; border-radius: var(--radius-l); background: var(--pink-soft); --flower: var(--white); }
+  .bp-levels li:last-child { background: var(--pink); }
+  .bp-levels__name { font: 700 24px/1.2 var(--head-font); color: var(--ink); }
+  .bp-levels__pct { font: 700 44px/1 var(--head-font); color: var(--mauve); }
+  .bp-levels__from { font-size: 14px; color: var(--text); }
+  .bp-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); counter-reset: s; }
+  .bp-steps li { display: grid; gap: 8px; align-content: start; padding: 24px; border-radius: var(--radius-l); border: 1px solid var(--line); counter-increment: s; }
+  .bp-steps li::before { content: counter(s); font: 700 28px/1 var(--head-font); color: var(--mauve); }
+  .bp-steps b { font: 700 17px/1.3 var(--head-font); color: var(--ink); }
+  .bp-steps span { font-size: 14px; color: var(--text); }
+  .bp-note { margin: 16px 0 0; font-size: 14px; color: var(--muted); }
+  .bp-note a { color: var(--mauve); text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 1023px) {
+    .bp-levels { grid-template-columns: minmax(0, 1fr); }
+    .bp-steps { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+    .bp-levels li, .bp-steps li { padding: 18px 16px; }
+  }
+</style>
