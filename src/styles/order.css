@@ -77,7 +77,12 @@
 .of-sum__total dt { font-weight: 600; color: var(--ink); }
 .of-sum__total dd { font-size: 24px; }
 .of-sum__total small { font-size: 12px; font-weight: 400; color: var(--muted); }
-.of-sum__bonus { font-size: 12.5px; color: var(--mauve); }
+.of-sum__bonus { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 12.5px; color: var(--mauve); --flower: #f4a9c4; }
+.of-sum__bonus a { color: var(--mauve); text-decoration: underline; text-underline-offset: 3px; }
+.of-sum__rows--pts { color: var(--mauve); }
+/* Оплата баллами – демо (docs/ПЛАН-ЛК.md, решение 7) */
+.of-pts { display: grid; gap: 6px; margin-top: 4px; padding: 12px 14px; border-radius: var(--radius-m); background: var(--pink-soft); }
+.of-pts .of-note { margin: 0; }
 .of-sum__submit { display: grid; gap: 12px; }
 .of-trust { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 12.5px; }
 .of-trust li::before { content: '✓ '; color: var(--mauve); font-weight: 700; }

@@ -6,11 +6,15 @@ import { sendForm, thanksUrl } from '../lib/forms';
 import { maskPhone, phoneOk } from '../lib/phone';
 import { SITE } from '../lib/site';
 import { u } from '../lib/url';
+import { earnFor, getShop, pointsWord, snap } from '../lib/loyalty';
+import type { QuoteView } from '../vendor/shop-engine/shop-engine.js';
 import { IconBag, IconFlower, IconMinus, IconPlus, IconTrash } from './icons';
 
 // Страница «Ваш заказ» (задание владельца 13.10.2026: вместо тильдовской шторки «Your order» –
 // нормальная страница оформления). Поля, которые ждёт приёмник Тильды, названы как в форме корзины
 // на живом сайте: Имя, Телефон, Открытка, Получатель, Имя получателя, Телефон получателя, Дата, Время.
+// Баллы (docs/ПЛАН-ЛК.md, решение 7): кабинет – демо в браузере, поэтому флористу «Итого» уходит без вычета баллов,
+// а демо-баллы – отдельным полем «не применять». Сбой кабинета не мешает настоящему заказу.
 
 const PAY = [
   { id: 'link', title: 'По ссылке или QR-коду', note: 'Пришлём ссылку после подтверждения заказа' },
@@ -67,13 +71,29 @@ export default function Order({ addons }: { addons: Card[] }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [showSum, setShowSum] = useState(false);
+  const [usePoints, setUsePoints] = useState(false);
+  const [q, setQ] = useState<QuoteView | null>(null);
+  const [lkError, setLkError] = useState('');
 
   const items = ready ? cart.value : [];
   const subtotal = ready ? cartTotal.value : 0;
   const night = slot !== 'asap' && isNightSlot(slot);
   const dPrice = mode === 'pickup' ? 0 : deliveryPrice(zone, subtotal, night);
   const total = subtotal + (dPrice ?? 0);
-  const bonus = Math.floor(subtotal * 0.05);
+  const loggedIn = ready && snap.value.email !== null;
+  // скидка первого заказа и оплата баллами не совмещаются (решение 7)
+  const spend = usePoints && !first;
+  const lineKey = items.map((i) => `${i.id}:${i.qty}`).join(',');
+  useEffect(() => {
+    if (!loggedIn || !items.length) { setQ(null); return; }
+    let live = true;
+    getShop()
+      .then((shop) => shop.quote({ lines: items.map((i) => ({ productId: i.id, qty: i.qty })), usePoints: spend }))
+      .then((r) => { if (live) { setQ(r); setLkError(''); } })
+      .catch((e: unknown) => { if (live) { setQ(null); setLkError(e instanceof Error ? e.message : 'Кабинет не ответил'); } });
+    return () => { live = false; };
+  }, [loggedIn, lineKey, spend]);
+  const earn = q ? q.earn : earnFor(subtotal);
   const tomorrow = isoDay(new Date(today.getTime() + 864e5));
   const isToday = day === isoDay(today);
   // Сегодня – только интервалы, которые ещё не начались (час назад запас на сборку).
@@ -127,9 +147,26 @@ export default function Order({ addons }: { addons: Card[] }) {
       'Итого': dPrice === null ? `${fmt(subtotal)} + доставка (уточнить)` : fmt(total),
       'Согласие': 'yes',
     };
+    // заказ в кабинете (демо) – до отправки флористу; любой сбой кабинета – заказ уходит без баллов
+    let lk: { shop: Awaited<ReturnType<typeof getShop>>; orderId: string } | null = null;
+    if (loggedIn) {
+      try {
+        const shop = await getShop();
+        const placed = await shop.placeOrder({ lines: items.map((i) => ({ productId: i.id, qty: i.qty })), usePoints: spend, meta: { externalNum: num } });
+        lk = { shop, orderId: placed.orderId };
+        fields['Демо-номер в кабинете'] = placed.orderId;
+        if (placed.pointsUsed > 0) fields['Демо-баллы (не применять)'] = `${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} – демо-кабинет, итог не уменьшать`;
+      } catch {
+        lk = null;
+      }
+    }
     const ok = await sendForm('Cart', fields);
     setBusy(false);
-    if (!ok) { setErrors({ send: `Не получилось отправить заказ. Позвоните нам: ${SITE.phone}` }); return; }
+    if (!ok) {
+      if (lk) await lk.shop.cancelOrder(lk.orderId).catch(() => undefined); // флорист заказа не получил – баллы вернуть
+      setErrors({ send: `Не получилось отправить заказ. Позвоните нам: ${SITE.phone}` });
+      return;
+    }
     try { sessionStorage.setItem('mv_last_order', num); } catch {}
     clearCart();
     location.href = thanksUrl();
@@ -162,7 +199,19 @@ export default function Order({ addons }: { addons: Card[] }) {
         {first && <div class="is-accent"><dt>Скидка 20% на первый заказ</dt><dd>при подтверждении</dd></div>}
         <div class="of-sum__total"><dt>Итого</dt><dd>{fmt(total)}{dPrice === null && <small> + доставка</small>}</dd></div>
       </dl>
-      <p class="of-sum__bonus">+{fmt(bonus)} бонусами на следующий заказ</p>
+      {loggedIn && q && q.pointsUsed > 0 && (
+        <dl class="of-sum__rows of-sum__rows--pts">
+          <div><dt>Баллами (демо)</dt><dd>−{q.pointsUsed.toLocaleString('ru-RU')}</dd></div>
+          <div><dt>С баллами (демо)</dt><dd>{fmt(q.payRub + (dPrice ?? 0))}</dd></div>
+        </dl>
+      )}
+      {earn > 0 && (
+        <p class="of-sum__bonus">
+          <IconFlower size={16} />
+          {ready && !loggedIn && <><a href={u('/lk/')}>Войдите</a> – </>}
+          начислим +{earn.toLocaleString('ru-RU')} {pointsWord(earn)}{loggedIn ? ' (демо)' : ''} на следующий заказ
+        </p>
+      )}
     </div>
   );
 
@@ -309,6 +358,19 @@ export default function Order({ addons }: { addons: Card[] }) {
             ))}
           </div>
           <label class="check"><input type="checkbox" checked={first} onChange={(e) => setFirst((e.target as HTMLInputElement).checked)} /><span>Это мой первый заказ в Milovini – хочу скидку 20%</span></label>
+          {loggedIn && (
+            <div class="of-pts">
+              <label class="check">
+                <input type="checkbox" checked={spend} disabled={first || !q || q.maxPoints === 0} onChange={(e) => setUsePoints((e.target as HTMLInputElement).checked)} />
+                <span>
+                  Оплатить баллами (демо){q && q.maxPoints > 0 ? ` – до ${q.maxPoints.toLocaleString('ru-RU')} из ${snap.value.available.toLocaleString('ru-RU')}` : ''}
+                  {first && <small class="muted"> – не совмещается со скидкой первого заказа</small>}
+                </span>
+              </label>
+              <p class="of-note">Демо-кабинет: баллы хранятся в этом браузере, флорист их не списывает – итог заказа не меняется.</p>
+              {lkError && <p class="form-err" role="alert">{lkError}</p>}
+            </div>
+          )}
           <p class="of-note">Оплата после подтверждения: флорист соберёт букет, пришлёт фото на согласование и подтвердит итоговую сумму.</p>
         </Section>
       </div>
