@@ -1,0 +1,14 @@
+---
+// Кабинет: Мои заказы (docs/ПЛАН-ЛК.md, решение 8). Данные – только в браузере (client:only).
+import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import { LkOrders } from '../../islands/LkOrders';
+import '../../styles/lk.css';
+---
+<Base title="Мои заказы – Milovini Flowers" noindex noSticky>
+  <section class="container lk-page">
+    <Crumbs items={[{ label: 'Главная', href: '/' }, { label: 'Личный кабинет', href: '/lk/' }, { label: 'Мои заказы' }]} />
+    <h1 class="h1">Мои заказы</h1>
+    <LkOrders client:only="preact" />
+  </section>
+</Base>

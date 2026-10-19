@@ -1,0 +1,14 @@
+---
+// Кабинет: Мои баллы (docs/ПЛАН-ЛК.md, решение 8). Данные – только в браузере (client:only).
+import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import { LkPoints } from '../../islands/LkOrders';
+import '../../styles/lk.css';
+---
+<Base title="Мои баллы – Milovini Flowers" noindex noSticky>
+  <section class="container lk-page">
+    <Crumbs items={[{ label: 'Главная', href: '/' }, { label: 'Личный кабинет', href: '/lk/' }, { label: 'Мои баллы' }]} />
+    <h1 class="h1">Мои баллы</h1>
+    <LkPoints client:only="preact" />
+  </section>
+</Base>

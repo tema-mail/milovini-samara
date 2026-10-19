@@ -76,3 +76,27 @@
   .lk-login { padding: 24px 18px; }
   .lk-levels li { padding: 8px; }
 }
+
+/* история баллов и заказы */
+@media (min-width: 1024px) { .lk-wide { grid-column: 1 / -1; } }
+.lk-hist { margin: 0; padding: 0; list-style: none; display: grid; }
+.lk-hist li { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 4px 16px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.lk-hist li:last-child { border-bottom: 0; }
+.lk-hist__when { color: var(--muted); font-size: 13px; }
+.lk-hist__what { color: var(--text); min-width: 0; }
+.lk-hist__pts { font: 700 16px/1 var(--body-font); color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+.lk-hist__pts.is-plus { color: #4f7a5b; }
+.lk-hist__pts.is-minus { color: var(--mauve); }
+@media (max-width: 1023px) {
+  .lk-hist li { grid-template-columns: minmax(0, 1fr) auto; }
+  .lk-hist__when { grid-column: 1 / -1; }
+}
+.lk-lines { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 14px; }
+.lk-lines li { display: flex; justify-content: space-between; gap: 12px; }
+.lk-lines li span { min-width: 0; color: var(--text); }
+.lk-order__sum { margin: 0; display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 14px; }
+.lk-order__sum div { display: flex; justify-content: space-between; gap: 12px; }
+.lk-order__sum dt { color: var(--muted); }
+.lk-order__sum dd { margin: 0; color: var(--ink); font-weight: 600; text-align: right; }
+.lk-order__btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.lk-order__btns .btn { white-space: normal; text-align: center; }
