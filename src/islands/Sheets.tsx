@@ -4,7 +4,9 @@ import {
 } from '../lib/store';
 import { FREE_FROM } from '../lib/delivery';
 import { u } from '../lib/url';
+import { snap } from '../lib/loyalty';
 import Drawer from './Drawer';
+import Points from './Points';
 import Search from './Search';
 import LeadPopup from './LeadPopup';
 import { IconBag, IconHeart, IconMinus, IconPlus, IconTrash } from './icons';
@@ -44,6 +46,9 @@ function CartSheet() {
             <i style={{ '--p': `${Math.min(100, (total / FREE_FROM) * 100)}%` }} />
           </div>
           <div class="cs__total"><span>Итого</span><b>{fmt(total)}</b></div>
+          <p class="cs__pts">
+            {snap.value.email === null ? <><a href={u('/lk/')}>Войдите</a> – начислим</> : <span>Начислим</span>} <Points price={total} />
+          </p>
           <a class="btn btn--mauve btn--block" href={u('/order')}>Оформить заказ</a>
           <button type="button" class="cs__more" onClick={close}>Продолжить покупки</button>
         </>

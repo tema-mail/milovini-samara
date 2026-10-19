@@ -210,3 +210,15 @@
 .pb__pts .pts { font-size: 15px; }
 .pb__pts a { color: var(--mauve); text-decoration: underline; text-underline-offset: 3px; }
 
+/* Кабинет в шапке и баллы в корзине (docs/ПЛАН-ЛК.md, решение 6) */
+.ha__lk { display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 12px; border-radius: 999px; color: var(--ink); font: 500 14px/1 var(--body-font); white-space: nowrap; }
+.ha__lk:hover { color: var(--mauve); }
+.ha__lk--in { background: var(--pink-soft); --flower: #f4a9c4; }
+.ha__lk--in b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.ha__demo { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--mauve); opacity: .8; }
+@media (max-width: 1023px) {
+  .ha__lk { height: 40px; padding: 0 8px; }
+  .ha__lk-label, .ha__demo { display: none; }
+}
+.cs__pts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 0; font-size: 13px; color: var(--muted); }
+.cs__pts a { color: var(--mauve); text-decoration: underline; text-underline-offset: 3px; }
