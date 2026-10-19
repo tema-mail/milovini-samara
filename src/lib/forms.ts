@@ -9,10 +9,17 @@ export const FORM_SERVICES = [
 export const TILDA = { projectId: '33165509', pageId: '199861909', formsKey: '14683579f32d09a74ffe9fac33165509' };
 
 /**
+ * Сборка тестового стенда (milovini.deford.ru, ПЛАН-S7e shop-modules): формы НЕ уходят в приёмник Тильды – там
+ * настоящий флорист. Отправка считается удачной, заказ остаётся только в базе стенда.
+ */
+export const STAND = import.meta.env.PUBLIC_STAND === '1';
+
+/**
  * Шлёт поля формы. Приёмник Тильды не отдаёт CORS-заголовки, поэтому запрос no-cors:
  * ответ не читается, успехом считаем то, что запрос ушёл без сетевой ошибки.
  */
 export async function sendForm(formName: string, fields: Record<string, string>): Promise<boolean> {
+  if (STAND) return true;
   const body = new URLSearchParams();
   FORM_SERVICES.forEach((s) => body.append('formservices[]', s));
   body.append('tildaspec-formname', formName);

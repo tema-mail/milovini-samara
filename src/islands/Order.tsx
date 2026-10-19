@@ -2,19 +2,21 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { Card } from '../lib/catalog';
 import { addToCart, cart, cartTotal, clearCart, fmt, removeFromCart, setQty } from '../lib/store';
 import { FREE_FROM, NIGHT, SLOTS, ZONES, deliveryPrice, isNightSlot } from '../lib/delivery';
-import { sendForm, thanksUrl } from '../lib/forms';
+import { STAND, sendForm, thanksUrl } from '../lib/forms';
 import { maskPhone, phoneOk } from '../lib/phone';
 import { SITE } from '../lib/site';
 import { u } from '../lib/url';
-import { earnFor, getShop, pointsWord, snap } from '../lib/loyalty';
+import { API_MODE, earnFor, getShop, pointsWord, snap } from '../lib/loyalty';
 import type { QuoteView } from '../vendor/shop-engine/shop-engine.js';
 import { IconBag, IconFlower, IconMinus, IconPlus, IconTrash } from './icons';
 
 // Страница «Ваш заказ» (задание владельца 13.10.2026: вместо тильдовской шторки «Your order» –
 // нормальная страница оформления). Поля, которые ждёт приёмник Тильды, названы как в форме корзины
 // на живом сайте: Имя, Телефон, Открытка, Получатель, Имя получателя, Телефон получателя, Дата, Время.
-// Баллы (docs/ПЛАН-ЛК.md, решение 7): кабинет – демо в браузере, поэтому флористу «Итого» уходит без вычета баллов,
-// а демо-баллы – отдельным полем «не применять». Сбой кабинета не мешает настоящему заказу.
+// Баллы (docs/ПЛАН-ЛК.md, решение 7): в демо-кабинете флористу «Итого» уходит без вычета баллов, а демо-баллы –
+// отдельным полем «не применять». Сбой кабинета не мешает настоящему заказу.
+// Кабинет на сервере (API_MODE, ПЛАН-S7e shop-modules): баллы при заказе не списываются, пока в магазине нет оплаты
+// (S8) – иначе флорист взял бы полную сумму, а баллы ушли бы; списывает владелец в админке по просьбе покупателя.
 
 const PAY = [
   { id: 'link', title: 'По ссылке или QR-коду', note: 'Пришлём ссылку после подтверждения заказа' },
@@ -82,7 +84,7 @@ export default function Order({ addons }: { addons: Card[] }) {
   const total = subtotal + (dPrice ?? 0);
   const loggedIn = ready && snap.value.email !== null;
   // скидка первого заказа и оплата баллами не совмещаются (решение 7)
-  const spend = usePoints && !first;
+  const spend = usePoints && !first && !API_MODE;
   const lineKey = items.map((i) => `${i.id}:${i.qty}`).join(',');
   useEffect(() => {
     if (!loggedIn || !items.length) { setQ(null); return; }
@@ -154,11 +156,17 @@ export default function Order({ addons }: { addons: Card[] }) {
         const shop = await getShop();
         const placed = await shop.placeOrder({ lines: items.map((i) => ({ productId: i.id, qty: i.qty })), usePoints: spend, meta: { externalNum: num } });
         lk = { shop, orderId: placed.orderId };
-        fields['Демо-номер в кабинете'] = placed.orderId;
+        fields[API_MODE ? 'Номер в кабинете' : 'Демо-номер в кабинете'] = placed.orderId;
         if (placed.pointsUsed > 0) fields['Демо-баллы (не применять)'] = `${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} – демо-кабинет, итог не уменьшать`;
       } catch {
         lk = null;
       }
+    }
+    // стенд: флористу ничего не уходит – заказ есть только в кабинете; не записался – не говорить «спасибо»
+    if (STAND && loggedIn && !lk) {
+      setBusy(false);
+      setErrors({ send: 'Тестовый стенд: заказ не записался в кабинет – попробуйте ещё раз.' });
+      return;
     }
     const ok = await sendForm('Cart', fields);
     setBusy(false);
@@ -209,7 +217,7 @@ export default function Order({ addons }: { addons: Card[] }) {
         <p class="of-sum__bonus">
           <IconFlower size={16} />
           {ready && !loggedIn && <><a href={u('/lk/')}>Войдите</a> – </>}
-          начислим +{earn.toLocaleString('ru-RU')} {pointsWord(earn)}{loggedIn ? ' (демо)' : ''} на следующий заказ
+          начислим +{earn.toLocaleString('ru-RU')} {pointsWord(earn)}{loggedIn && !API_MODE ? ' (демо)' : ''} на следующий заказ
         </p>
       )}
     </div>
@@ -358,7 +366,10 @@ export default function Order({ addons }: { addons: Card[] }) {
             ))}
           </div>
           <label class="check"><input type="checkbox" checked={first} onChange={(e) => setFirst((e.target as HTMLInputElement).checked)} /><span>Это мой первый заказ в Milovini – хочу скидку 20%</span></label>
-          {loggedIn && (
+          {loggedIn && API_MODE && (
+            <p class="of-note">Хотите оплатить часть заказа баллами – напишите об этом в комментарии: флорист учтёт, баллы спишем в кабинете.</p>
+          )}
+          {loggedIn && !API_MODE && (
             <div class="of-pts">
               <label class="check">
                 <input type="checkbox" checked={spend} disabled={first || !q || q.maxPoints === 0} onChange={(e) => setUsePoints((e.target as HTMLInputElement).checked)} />
