@@ -3,6 +3,7 @@ import type { Card } from '../lib/catalog';
 import { addToCart, cart, favs, fmt, sheet, toggleFav } from '../lib/store';
 import { u } from '../lib/url';
 import { IconBag, IconHeart } from './icons';
+import Points from './Points';
 
 // Карточка товара в сетках. Сердечко – в избранное, «В корзину» – сразу в корзину.
 export default function ProductCard({ p, eager = false }: { p: Card; eager?: boolean }) {
@@ -38,6 +39,7 @@ export default function ProductCard({ p, eager = false }: { p: Card; eager?: boo
           <b>{fmt(p.price)}</b>
           {p.priceOld && <s>{fmt(p.priceOld)}</s>}
         </div>
+        <Points price={p.price} size={14} />
         <div class="pc__actions">
           <button
             type="button" class={`btn btn--sm ${inCart ? 'btn--outline' : 'btn--pink'} pc__buy`}
