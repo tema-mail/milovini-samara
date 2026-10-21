@@ -15,8 +15,8 @@ import { IconBag, IconFlower, IconMinus, IconPlus, IconTrash } from './icons';
 // на живом сайте: Имя, Телефон, Открытка, Получатель, Имя получателя, Телефон получателя, Дата, Время.
 // Баллы (docs/ПЛАН-ЛК.md, решение 7): в демо-кабинете флористу «Итого» уходит без вычета баллов, а демо-баллы –
 // отдельным полем «не применять». Сбой кабинета не мешает настоящему заказу.
-// Кабинет на сервере (API_MODE, ПЛАН-S7e shop-modules): баллы при заказе не списываются, пока в магазине нет оплаты
-// (S8) – иначе флорист взял бы полную сумму, а баллы ушли бы; списывает владелец в админке по просьбе покупателя.
+// Кабинет на сервере (API_MODE, ПЛАН-S8 shop-modules): баллы удерживаются при заказе и списываются, когда магазин
+// отметит «деньги получены» в админке; отмена – баллы вернутся. Флористу уходят «Баллами» и «К оплате» с вычетом.
 
 const PAY = [
   { id: 'link', title: 'По ссылке или QR-коду', note: 'Пришлём ссылку после подтверждения заказа' },
@@ -84,7 +84,7 @@ export default function Order({ addons }: { addons: Card[] }) {
   const total = subtotal + (dPrice ?? 0);
   const loggedIn = ready && snap.value.email !== null;
   // скидка первого заказа и оплата баллами не совмещаются (решение 7)
-  const spend = usePoints && !first && !API_MODE;
+  const spend = usePoints && !first;
   const lineKey = items.map((i) => `${i.id}:${i.qty}`).join(',');
   useEffect(() => {
     if (!loggedIn || !items.length) { setQ(null); return; }
@@ -149,7 +149,7 @@ export default function Order({ addons }: { addons: Card[] }) {
       'Итого': dPrice === null ? `${fmt(subtotal)} + доставка (уточнить)` : fmt(total),
       'Согласие': 'yes',
     };
-    // заказ в кабинете (демо) – до отправки флористу; любой сбой кабинета – заказ уходит без баллов
+    // заказ в кабинете – до отправки флористу; любой сбой кабинета – заказ уходит без баллов (полная сумма)
     let lk: { shop: Awaited<ReturnType<typeof getShop>>; orderId: string } | null = null;
     if (loggedIn) {
       try {
@@ -157,7 +157,13 @@ export default function Order({ addons }: { addons: Card[] }) {
         const placed = await shop.placeOrder({ lines: items.map((i) => ({ productId: i.id, qty: i.qty })), usePoints: spend, meta: { externalNum: num } });
         lk = { shop, orderId: placed.orderId };
         fields[API_MODE ? 'Номер в кабинете' : 'Демо-номер в кабинете'] = placed.orderId;
-        if (placed.pointsUsed > 0) fields['Демо-баллы (не применять)'] = `${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} – демо-кабинет, итог не уменьшать`;
+        if (placed.pointsUsed > 0 && API_MODE) {
+          // баллы настоящие: флорист берёт сумму с вычетом
+          fields['Баллами'] = `${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} (1 балл = 1 ₽)`;
+          fields['К оплате'] = dPrice === null ? `${fmt(placed.payRub)} + доставка (уточнить)` : fmt(placed.payRub + dPrice);
+        } else if (placed.pointsUsed > 0) {
+          fields['Демо-баллы (не применять)'] = `${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} – демо-кабинет, итог не уменьшать`;
+        }
       } catch {
         lk = null;
       }
@@ -209,8 +215,8 @@ export default function Order({ addons }: { addons: Card[] }) {
       </dl>
       {loggedIn && q && q.pointsUsed > 0 && (
         <dl class="of-sum__rows of-sum__rows--pts">
-          <div><dt>Баллами (демо)</dt><dd>−{q.pointsUsed.toLocaleString('ru-RU')}</dd></div>
-          <div><dt>С баллами (демо)</dt><dd>{fmt(q.payRub + (dPrice ?? 0))}</dd></div>
+          <div><dt>Баллами{API_MODE ? '' : ' (демо)'}</dt><dd>−{q.pointsUsed.toLocaleString('ru-RU')}</dd></div>
+          <div><dt>{API_MODE ? 'К оплате' : 'С баллами (демо)'}</dt><dd>{fmt(q.payRub + (dPrice ?? 0))}</dd></div>
         </dl>
       )}
       {earn > 0 && (
@@ -366,19 +372,20 @@ export default function Order({ addons }: { addons: Card[] }) {
             ))}
           </div>
           <label class="check"><input type="checkbox" checked={first} onChange={(e) => setFirst((e.target as HTMLInputElement).checked)} /><span>Это мой первый заказ в Milovini – хочу скидку 20%</span></label>
-          {loggedIn && API_MODE && (
-            <p class="of-note">Хотите оплатить часть заказа баллами – напишите об этом в комментарии: флорист учтёт, баллы спишем в кабинете.</p>
-          )}
-          {loggedIn && !API_MODE && (
+          {loggedIn && (
             <div class="of-pts">
               <label class="check">
                 <input type="checkbox" checked={spend} disabled={first || !q || q.maxPoints === 0} onChange={(e) => setUsePoints((e.target as HTMLInputElement).checked)} />
                 <span>
-                  Оплатить баллами (демо){q && q.maxPoints > 0 ? ` – до ${q.maxPoints.toLocaleString('ru-RU')} из ${snap.value.available.toLocaleString('ru-RU')}` : ''}
+                  Оплатить баллами{API_MODE ? '' : ' (демо)'}{q && q.maxPoints > 0 ? ` – до ${q.maxPoints.toLocaleString('ru-RU')} из ${snap.value.available.toLocaleString('ru-RU')}` : ''}
                   {first && <small class="muted"> – не совмещается со скидкой первого заказа</small>}
                 </span>
               </label>
-              <p class="of-note">Демо-кабинет: баллы хранятся в этом браузере, флорист их не списывает – итог заказа не меняется.</p>
+              <p class="of-note">
+                {API_MODE
+                  ? 'Баллы спишутся, когда магазин подтвердит оплату; отмените заказ – вернутся на счёт.'
+                  : 'Демо-кабинет: баллы хранятся в этом браузере, флорист их не списывает – итог заказа не меняется.'}
+              </p>
               {lkError && <p class="form-err" role="alert">{lkError}</p>}
             </div>
           )}
