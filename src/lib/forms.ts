@@ -1,5 +1,7 @@
 // Отправка форм в приёмник Тильды – те же получатели (formservices), что на живом milovinisamara.ru,
 // поэтому заявки и заказы приходят туда же, куда сейчас. Список снят из форм сайта 13.10.2026.
+import { leadFields } from './attribution';
+
 export const FORM_ACTION = 'https://forms.tildacdn.com/procces/';
 export const FORM_SERVICES = [
   'd9f103ba2ffa8dd95c92416c99770283',
@@ -27,7 +29,7 @@ export async function sendForm(formName: string, fields: Record<string, string>)
   body.append('tildaspec-pageid', TILDA.pageId);
   body.append('tildaspec-formskey', TILDA.formsKey);
   body.append('tildaspec-referer', location.href);
-  for (const [k, v] of Object.entries(fields)) if (v) body.append(k, v);
+  for (const [k, v] of Object.entries({ ...fields, ...leadFields() })) if (v) body.append(k, v);
   try {
     await fetch(FORM_ACTION, { method: 'POST', mode: 'no-cors', body });
     return true;
