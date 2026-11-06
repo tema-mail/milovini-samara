@@ -3,6 +3,13 @@ import type { Card } from '../lib/catalog';
 import { addToCart, cart, cartTotal, clearCart, fmt, removeFromCart, setQty } from '../lib/store';
 import { FREE_FROM, NIGHT, SLOTS, ZONES, deliveryPrice, isNightSlot } from '../lib/delivery';
 import { STAND, sendForm, thanksUrl } from '../lib/forms';
+import { leadFields } from '../lib/attribution';
+
+/** Источник заказа для сервера магазина: кроме источника – страница заказа, страница входа и метки. */
+function orderAttribution() {
+  const { 'Источник': source, 'Страница заявки': page, 'Страница входа': landing, ...marks } = leadFields();
+  return { source, page, landing, marks };
+}
 import { maskPhone, phoneOk } from '../lib/phone';
 import { SITE } from '../lib/site';
 import { u } from '../lib/url';
@@ -154,7 +161,7 @@ export default function Order({ addons }: { addons: Card[] }) {
     if (loggedIn) {
       try {
         const shop = await getShop();
-        const placed = await shop.placeOrder({ lines: items.map((i) => ({ productId: i.id, qty: i.qty })), usePoints: spend, meta: { externalNum: num } });
+        const placed = await shop.placeOrder({ lines: items.map((i) => ({ productId: i.id, qty: i.qty })), usePoints: spend, meta: { externalNum: num, attribution: orderAttribution() } as { externalNum: string } });
         lk = { shop, orderId: placed.orderId };
         fields[API_MODE ? 'Номер в кабинете' : 'Демо-номер в кабинете'] = placed.orderId;
         if (placed.pointsUsed > 0 && API_MODE) {
