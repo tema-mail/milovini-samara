@@ -13,7 +13,6 @@ export const SITE = {
 };
 
 export const SOCIALS = [
-  { id: 'wa', label: 'WhatsApp', href: 'https://wa.me/79371711177' },
   { id: 'vk', label: 'ВКонтакте', href: 'https://vk.com/milovini_samara' },
   { id: 'max', label: 'MAX', href: 'https://max.ru/u/f9LHodD0cOJVoLWt5U-wY4KrOi-LInMxkMIpKx2TMrNrl9NpfRqyWCclW5E' },
   { id: 'tg', label: 'Telegram', href: 'https://t.me/milovini_samara' },
