@@ -17,8 +17,8 @@
   --radius-m: 14px;
   --gutter: 40px;
   --container: 1440px;
-  --head-font: 'Comfortaa', system-ui, sans-serif;
-  --body-font: 'Montserrat', system-ui, sans-serif;
+  --head-font: 'Comfortaa', 'Comfortaa Fallback', system-ui, sans-serif;
+  --body-font: 'Montserrat', 'Montserrat Fallback', system-ui, sans-serif;
   --shadow: 0 10px 40px rgba(154, 103, 122, 0.12);
   --ease: cubic-bezier(.2, .7, .2, 1);
   --header-h: 128px;

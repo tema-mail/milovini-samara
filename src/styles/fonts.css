@@ -31,3 +31,28 @@
   src: url('../assets/fonts/comfortaa-rub-wght-normal.woff2') format('woff2');
   unicode-range: U+20BD;
 }
+
+/* Запасные шрифты, подогнанные под метрики наших: пока Montserrat/Comfortaa не пришли, текст рисуется
+   Arial (или метрически равным Liberation Sans / Arimo) с поправками ширины и высоты строки – при подмене
+   строки не перестраиваются и ничего не съезжает (было: CLS 0,19–0,6 на десктопе «Букетов», 0,035 у меню).
+   Поправки посчитаны fontTools по этим файлам и Arial на русском образце текста сайта (12.11.2026). */
+@font-face {
+  font-family: 'Montserrat Fallback'; font-weight: 100 500;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Arimo');
+  size-adjust: 111%; ascent-override: 87.2%; descent-override: 22.61%; line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Montserrat Fallback'; font-weight: 600 900;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('Arimo Bold');
+  size-adjust: 107.67%; ascent-override: 89.9%; descent-override: 23.31%; line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Comfortaa Fallback'; font-weight: 100 500;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Arimo');
+  size-adjust: 120.3%; ascent-override: 73.23%; descent-override: 19.45%; line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Comfortaa Fallback'; font-weight: 600 900;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('Arimo Bold');
+  size-adjust: 113.41%; ascent-override: 77.68%; descent-override: 20.63%; line-gap-override: 0%;
+}
