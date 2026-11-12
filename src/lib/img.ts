@@ -30,5 +30,5 @@ export async function size(url: string): Promise<{ width: number; height: number
 export function msrcset(url: string): string | undefined {
   const local = M[url];
   if (!local || /\.(svg|gif)$/.test(local)) return undefined;
-  return `${u(local)}-m800.webp 800w, ${u(local)}-m1600.webp 1600w`;
+  return `${u(local)}-m720.webp 720w, ${u(local)}-m1600.webp 1600w`;
 }
