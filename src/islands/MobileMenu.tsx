@@ -31,6 +31,10 @@ export default function MobileMenu({ tiles }: { tiles: MenuTile[] }) {
   const open = sheet.value === 'menu';
   const [drill, setDrill] = useState<MenuTile | null>(null);
   const [mounted, setMounted] = useState(false);
+  // Картинки плиток – после первого открытия (или нажатия на кнопку): закрытое меню грузило 8 фото
+  // на каждой странице, и на телефоне они делили канал с фото первого экрана (PageSpeed, 12.11.2026).
+  const [seen, setSeen] = useState(false);
+  useEffect(() => { if (open) setSeen(true); }, [open]);
   const btnRef = useRef<HTMLButtonElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   useEffect(() => setMounted(true), []);
@@ -71,7 +75,7 @@ export default function MobileMenu({ tiles }: { tiles: MenuTile[] }) {
               {tiles.map((t, i) => {
                 const inner = (
                   <>
-                    {t.img && <img src={t.img} alt="" loading="lazy" />}
+                    {t.img && seen && <img src={t.img} alt="" loading="lazy" />}
                     <span class="mm-tile__shade" />
                     <span class="mm-tile__text">
                       <span class="mm-tile__title">{t.title}</span>
@@ -133,6 +137,7 @@ export default function MobileMenu({ tiles }: { tiles: MenuTile[] }) {
         class={`icon-btn mm-burger${open ? ' is-open' : ''}`}
         aria-label="Меню"
         aria-expanded={open}
+        onPointerDown={() => setSeen(true)}
         onClick={() => (sheet.value = open ? null : 'menu')}
       >
         <span /><span /><span />

@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { sheet } from '../lib/store';
 import { sendForm, thanksUrl } from '../lib/forms';
 import { maskPhone, phoneOk } from '../lib/phone';
@@ -17,6 +17,11 @@ export default function LeadPopup() {
   const [agree, setAgree] = useState(true);
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const open = sheet.value === 'lead';
+  // Фон-фото – после первого открытия: у закрытой шторки он грузился на каждой странице (68 КБ, высокий
+  // приоритет) и отнимал канал у фото первого экрана на телефоне. До загрузки виден розовый фон блока.
+  const [seen, setSeen] = useState(false);
+  useEffect(() => { if (open) setSeen(true); }, [open]);
 
   const submit = async (e: Event) => {
     e.preventDefault();
@@ -30,9 +35,9 @@ export default function LeadPopup() {
   };
 
   return (
-    <Drawer open={sheet.value === 'lead'} onClose={() => (sheet.value = null)} side="center" label="Заявка на букет">
+    <Drawer open={open} onClose={() => (sheet.value = null)} side="center" label="Заявка на букет">
       <div class="lead">
-        <div class="lead__art" aria-hidden="true" style={{ backgroundImage: `url(${u(ART)})` }} />
+        <div class="lead__art" aria-hidden="true" style={seen ? { backgroundImage: `url(${u(ART)})` } : undefined} />
         <form class="lead__form" onSubmit={submit} noValidate>
           <button type="button" class="lead__x" aria-label="Закрыть" onClick={() => (sheet.value = null)}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
