@@ -28,7 +28,7 @@ const popular = products.filter((p) => inPart(p, PART.popular) && p.images.lengt
   <section class="section container" id="list">
     <SectionHead title="Каталог" sub={`${all.length} букетов, композиций и подарков`} />
     <CatalogLinks />
-    <Catalog client:load cards={all} chips={allChips()} step={16} eager={4} />
+    <Catalog client:load cards={all} chips={allChips()} step={16} />
   </section>
   <section class="section container">
     <SectionHead title="Букеты, которые выбирают чаще всего" sub="Популярные букеты и композиции Milovini с доставкой по Самаре" />

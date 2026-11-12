@@ -50,7 +50,7 @@ const buy = { id: p.id, title: p.title, price: p.price!, img: p.images[0], path:
         {p.images.length > 1 && (
           <div class="pp__thumbs" role="group" aria-label="Фото букета">
             {p.images.map((im, i) => (
-              <button type="button" class:list={['pp__thumb', { 'is-on': i === 0 }]} data-i={i} aria-label={`Фото ${i + 1}`}><img src={u(im + '-480.webp')} alt="" loading="lazy" /></button>
+              <button type="button" class:list={['pp__thumb', { 'is-on': i === 0 }]} data-i={i} aria-label={`Фото ${i + 1}`}><img src={u(im + '-360.webp')} alt="" loading="lazy" /></button>
             ))}
           </div>
         )}
