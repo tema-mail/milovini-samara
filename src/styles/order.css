@@ -90,6 +90,7 @@
 
 .of-empty { display: grid; justify-items: center; text-align: center; gap: 16px; padding: 64px 16px; border-radius: var(--radius-xl); background: var(--bg-soft); }
 .of-empty__btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.of-empty .btn--outline:not(:hover) { color: var(--mauve-dark); border-color: var(--mauve-dark); } /* на сером фоне лиловый давал 4,22 */
 
 @media (max-width: 1199px) { .of { grid-template-columns: minmax(0, 1fr) 340px; } .of-zones, .of-pay { grid-template-columns: 1fr; } .of-slots { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 1023px) {

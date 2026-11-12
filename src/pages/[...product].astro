@@ -48,7 +48,7 @@ const buy = { id: p.id, title: p.title, price: p.price!, img: p.images[0], path:
         </div>
         {p.mark && <span class="pp__mark">{p.mark}</span>}
         {p.images.length > 1 && (
-          <div class="pp__thumbs" role="tablist" aria-label="Фото букета">
+          <div class="pp__thumbs" role="group" aria-label="Фото букета">
             {p.images.map((im, i) => (
               <button type="button" class:list={['pp__thumb', { 'is-on': i === 0 }]} data-i={i} aria-label={`Фото ${i + 1}`}><img src={u(im + '-480.webp')} alt="" loading="lazy" /></button>
             ))}
@@ -140,7 +140,7 @@ const buy = { id: p.id, title: p.title, price: p.price!, img: p.images[0], path:
   .pp__h { font: 400 22px/1.2 var(--head-font); color: var(--mauve); margin: 16px 0 10px; }
   .pp__text :global(div) { font: 400 15px/1.7 var(--head-font); color: var(--ink); }
   .pp__help { font-size: 13px; }
-  .pp__help a { color: var(--mauve); white-space: nowrap; }
+  .pp__help a { color: var(--mauve); white-space: nowrap; text-decoration: underline; text-underline-offset: 2px; } /* ссылку в тексте видно не только цветом */
   :global(.pb) { display: grid; gap: 10px; }
   :global(.pb__row) { display: flex; gap: 10px; align-items: center; }
   :global(.qty--lg) { height: 64px; }
