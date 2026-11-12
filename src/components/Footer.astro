@@ -33,7 +33,7 @@ const cols = [
   <div class="container ftr__legal">
     <span>© {new Date().getFullYear()} {SITE.name}. {SITE.owner}, ИНН {SITE.inn}</span>
   </div>
-  <div class="ftr__mark" aria-hidden="true"><img src={u('/img/logo-footer.svg')} alt="" /></div>
+  <div class="ftr__mark" aria-hidden="true"><img src={u('/img/logo-footer.svg')} alt="" width="1200" height="91" loading="lazy" /></div>
 </footer>
 
 <style>
@@ -52,7 +52,7 @@ const cols = [
   .ftr__col a:hover { color: var(--pink); }
   .ftr__legal { padding-top: 48px; font-size: 12px; }
   .ftr__mark { padding: 24px 0 0; opacity: .18; }
-  .ftr__mark img { width: 104%; max-width: none; margin-left: -2%; filter: brightness(0) invert(1); transform: translateY(18%); }
+  .ftr__mark img { width: 104%; height: auto; max-width: none; margin-left: -2%; filter: brightness(0) invert(1); transform: translateY(18%); }
   @media (max-width: 1023px) {
     .ftr { margin-top: 72px; padding-bottom: 80px; }
     .ftr__grid { grid-template-columns: 1fr 1fr; gap: 32px 20px; padding-top: 44px; }
