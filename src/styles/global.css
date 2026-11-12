@@ -123,6 +123,12 @@ p { margin: 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Появление при прокрутке */
+/* Секции ниже первой браузер не раскладывает, пока они далеко от экрана: шрифты и знак ₽ приходят позже
+   и раньше заставляли переложить всю страницу 4 раза (по ~1600 объектов) – на телефоне это 150–280 мс
+   блокировки на каждую (Lighthouse-трасса 12.11.2026). Вид не меняется. Секцию с fixed-кнопкой заказа
+   (.of-submit) не трогаем: внутри content-visibility fixed считается от секции. */
+main > section:not(:first-child):not(:has(.of-submit)), .ftr { content-visibility: auto; contain-intrinsic-size: auto 800px; }
+@media (max-width: 1023px) { main > section:not(:first-child):not(:has(.of-submit)), .ftr { contain-intrinsic-size: auto 1100px; } }
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
 .reveal.is-in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } html { scroll-behavior: auto; } }
