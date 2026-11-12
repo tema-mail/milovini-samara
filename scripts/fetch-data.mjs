@@ -120,7 +120,7 @@ async function store() {
   console.log('товаров', products.length);
   await pool(products, 6, async (p) => {
     p.images = [];
-    for (const s of p.src) p.images.push(await saveImage(s, 'p', [360, 480, 1000]));
+    for (const s of p.src) p.images.push(await saveImage(s, 'p', [360, 480, 720, 1000]));
     delete p.src;
   });
   await writeFile(path.join(DATA, 'products.json'), dump(products));

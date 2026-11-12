@@ -43,7 +43,7 @@ const buy = { id: p.id, title: p.title, price: p.price!, img: p.images[0], path:
       <div class="pp__gallery">
         <div class="pp__slides" data-gal>
           {p.images.map((im, i) => (
-            <img src={u(im + '-1000.webp')} alt={i === 0 ? p.title : `${p.title} – фото ${i + 1}`} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} />
+            <img src={u(im + '-1000.webp')} srcset={`${u(im + '-480.webp')} 480w, ${u(im + '-720.webp')} 720w, ${u(im + '-1000.webp')} 1000w`} sizes="(max-width: 1023px) 100vw, (max-width: 1440px) calc(51vw - 70px), 670px" alt={i === 0 ? p.title : `${p.title} – фото ${i + 1}`} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} />
           ))}
         </div>
         {p.mark && <span class="pp__mark">{p.mark}</span>}
