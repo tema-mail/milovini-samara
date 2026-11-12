@@ -60,7 +60,7 @@
 }
 .cat__empty { padding: 32px 0; font-size: 15px; }
 .cat__more { display: flex; justify-content: center; margin-top: 24px; }
-.cat__left { font-weight: 400; opacity: .7; font-size: 13px; }
+.cat__left { font-weight: 400; color: var(--mauve-dark); font-size: 13px; }
 @media (max-width: 1023px) {
   .hscroll-m { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter); }
   .hscroll-m::-webkit-scrollbar { display: none; }
