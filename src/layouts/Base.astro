@@ -1,4 +1,5 @@
 ---
+import '../styles/fonts.css';
 import '../styles/global.css';
 import '../styles/islands.css';
 import '../styles/catalog.css';
@@ -37,9 +38,6 @@ const closed = noindex || import.meta.env.PUBLIC_NOINDEX === '1';
     {image && <meta property="og:image" content={new URL(image, Astro.site)} />}
     <meta name="theme-color" content="#fecbde" />
     <link rel="icon" href={u('/favicon.svg')} type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&family=Montserrat:wght@300..700&display=swap" rel="stylesheet" />
   </head>
   <body>
     <a class="sr-only" href="#main">К содержимому</a>

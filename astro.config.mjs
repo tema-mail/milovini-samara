@@ -12,6 +12,7 @@ export default defineConfig({
   base: BASE,
   integrations: [preact()],
   trailingSlash: 'ignore',
-  build: { format: 'directory', inlineStylesheets: 'auto' },
+  // CSS прямо в HTML: отдельный файл стилей блокировал первую отрисовку на телефоне (Lighthouse, 12.11.2026).
+  build: { format: 'directory', inlineStylesheets: 'always' },
   devToolbar: { enabled: false },
 });
