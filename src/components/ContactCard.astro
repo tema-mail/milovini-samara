@@ -1,5 +1,8 @@
 ---
-// Карточка контактов + карта Яндекса (ленивая загрузка).
+// Карточка контактов + карта Яндекса. Карта не убрана: сразу виден снимок этой же карты (статичная карта
+// Яндекса, сохранена в public/img), живая карта подменяет его, когда блок подошёл к экрану на 200 px и человек
+// что-то сделал на странице (прокрутка, мышь, касание, клавиша). Иначе Яндекс грузился сразу: ~1 МБ и
+// сторонние куки, Lighthouse «Рекомендации» 78 на контактах (12.11.2026).
 import { SITE, SOCIALS } from '../lib/site';
 import { u } from '../lib/url';
 import { IconFlower, Social } from '../islands/icons';
@@ -18,7 +21,8 @@ import { IconFlower, Social } from '../islands/icons';
     </div>
   </div>
   <div class="cc__map reveal">
-    <iframe src="https://yandex.ru/map-widget/v1/?oid=19061492696&z=16" title="Milovini Flowers на Яндекс Картах" loading="lazy" allowfullscreen></iframe>
+    <img class="cc__ph" src={u('/img/map-pervomayskaya-26.webp')} width="650" height="450" alt="Milovini Flowers на карте: Самара, ул. Первомайская, 26" loading="lazy" decoding="async" />
+    <iframe data-src="https://yandex.ru/map-widget/v1/?oid=19061492696&z=16" title="Milovini Flowers на Яндекс Картах" allowfullscreen></iframe>
   </div>
 </section>
 <style>
@@ -31,8 +35,10 @@ import { IconFlower, Social } from '../islands/icons';
   .cc__btns { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   .cc__soc { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--pink); color: var(--mauve); transition: background-color .2s, color .2s; }
   .cc__soc:hover { background: var(--mauve); color: #fff; }
-  .cc__map { border-radius: var(--radius-xl); overflow: hidden; background: var(--bg-soft); min-height: 480px; }
-  .cc__map iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .cc__map { position: relative; border-radius: var(--radius-xl); overflow: hidden; background: var(--bg-soft); min-height: 480px; }
+  .cc__ph { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cc__map iframe { position: relative; width: 100%; height: 100%; border: 0; display: block; opacity: 0; transition: opacity .3s; }
+  .cc__map iframe.is-live { opacity: 1; }
   @media (max-width: 1023px) {
     .cc { grid-template-columns: 1fr; }
     .cc__card { padding: 28px 20px; gap: 18px; }
@@ -41,3 +47,24 @@ import { IconFlower, Social } from '../islands/icons';
     .cc__map { min-height: 320px; }
   }
 </style>
+<script>
+  // Живая карта: блок рядом с экраном И человек что-то сделал. Пока нет – виден снимок карты.
+  const maps = document.querySelectorAll<HTMLIFrameElement>('.cc__map iframe[data-src]');
+  const near = new Set<HTMLIFrameElement>();
+  let acted = false;
+  const load = (f: HTMLIFrameElement) => {
+    if (!f.dataset.src) return;
+    f.addEventListener('load', () => f.classList.add('is-live'), { once: true });
+    f.src = f.dataset.src; f.removeAttribute('data-src');
+  };
+  const go = () => { if (acted) near.forEach(load); };
+  const act = () => { acted = true; go(); };
+  for (const ev of ['scroll', 'wheel', 'pointermove', 'pointerdown', 'touchstart', 'keydown']) addEventListener(ev, act, { once: true, passive: true });
+  if (!('IntersectionObserver' in window)) { maps.forEach((f) => near.add(f)); go(); }
+  else {
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (e.isIntersecting) { near.add(e.target as HTMLIFrameElement); io.unobserve(e.target); go(); }
+    }), { rootMargin: '200px 0px' });
+    maps.forEach((f) => io.observe(f));
+  }
+</script>
