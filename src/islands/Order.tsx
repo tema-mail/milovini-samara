@@ -238,6 +238,11 @@ export default function Order({ addons }: { addons: Card[] }) {
 
   return (
     <form class="of" onSubmit={submit} noValidate>
+      {/* Полоса «Ваш заказ ▾» на телефоне – первой в разметке: стояла после формы и поднималась CSS order,
+          пока HTML догружался, форма успевала отрисоваться и потом съезжала на 70 px (PageSpeed CLS 0,061). */}
+      <button type="button" class="of-sum__toggle" aria-expanded={showSum} onClick={() => setShowSum(!showSum)}>
+        <span>Ваш заказ · {items.reduce((s, i) => s + i.qty, 0)} шт.</span><b>{fmt(total)}</b>
+      </button>
       <div class="of-main">
         <Section n={1} title="Ваш заказ" aside={<span class="of-sec__meta">{items.reduce((s, i) => s + i.qty, 0)} шт. · {fmt(subtotal)}</span>}>
           <ul class="of-items">
@@ -401,9 +406,6 @@ export default function Order({ addons }: { addons: Card[] }) {
       </div>
 
       <aside class="of-sum">
-        <button type="button" class="of-sum__toggle" aria-expanded={showSum} onClick={() => setShowSum(!showSum)}>
-          <span>Ваш заказ · {items.reduce((s, i) => s + i.qty, 0)} шт.</span><b>{fmt(total)}</b>
-        </button>
         <div class={`of-sum__box${showSum ? ' is-open' : ''}`}>
           <h2 class="of-sum__title">Итог</h2>
           {summary}
