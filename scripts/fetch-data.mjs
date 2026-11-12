@@ -132,7 +132,7 @@ async function store() {
     posts.push({
       id: p.uid, title: p.title, descr: p.descr, date: p.date,
       path: new URL(p.url).pathname,
-      image: p.image ? await saveImage(p.image, 'post', [600, 1200]) : null,
+      image: p.image ? await saveImage(p.image, 'post', [600, 800, 1200]) : null,
     });
   }
   await writeFile(path.join(DATA, 'posts.json'), dump(posts));

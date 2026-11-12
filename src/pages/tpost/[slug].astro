@@ -20,7 +20,12 @@ const dim = p.image ? await sharp(`public${p.image}-1200.webp`).metadata() : nul
   <article class="container art">
     <Crumbs items={[{ label: 'Главная', href: '/' }, { label: 'Акции', href: '/akcii' }, { label: p.title }]} />
     <h1 class="h1 art__title">{p.title}</h1>
-    {p.image && <img class="art__img" src={u(p.image + '-1200.webp')} width={dim?.width} height={dim?.height} alt="" />}
+    {p.image && (
+      <img
+        class="art__img" src={u(p.image + '-1200.webp')} srcset={`${u(p.image + '-600.webp')} 600w, ${u(p.image + '-800.webp')} 800w, ${u(p.image + '-1200.webp')} 1200w`}
+        sizes="(max-width: 1023px) calc(100vw - 32px), 820px" width={dim?.width} height={dim?.height} alt="" fetchpriority="high"
+      />
+    )}
     <div class="art__body" set:html={body} />
     <div class="art__cta">
       <a class="btn btn--mauve" href={u('/catalog/akcii')}>Смотреть букеты по акции</a>
