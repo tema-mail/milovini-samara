@@ -16,3 +16,12 @@ export function srcset(url: string): string | undefined {
   if (!local || /\.(svg|gif)$/.test(local)) return undefined;
   return `${u(local)}-800.webp 800w, ${u(local)}-1600.webp 1600w`;
 }
+
+/** Размеры локальной картинки (для width/height – чтобы место под фото было до загрузки). Только при сборке. */
+export async function size(url: string): Promise<{ width: number; height: number } | undefined> {
+  const local = M[url];
+  if (!local || /\.(svg|gif)$/.test(local)) return undefined;
+  const sharp = (await import('sharp')).default;
+  const m = await sharp(`public${local}-800.webp`).metadata();
+  return m.width && m.height ? { width: m.width, height: m.height } : undefined;
+}

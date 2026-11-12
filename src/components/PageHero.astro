@@ -2,7 +2,7 @@
 // Первый экран страницы: розовая карточка с заголовком и кнопками + фото, ниже 4 плитки преимуществ.
 import Btn, { type BtnProps } from './Btn.astro';
 import Crumbs from './Crumbs.astro';
-import { img, srcset } from '../lib/img';
+import { img, size, srcset } from '../lib/img';
 import { u } from '../lib/url';
 import { FEATURE, type FeatureKey } from '../lib/site';
 
@@ -20,6 +20,8 @@ interface Props {
   small?: boolean;
 }
 const { title, accent, text, badge, image, crumbs, buttons = [], features = ['bonus', 'allday', 'guarantee', 'delivery'], facts, small = false } = Astro.props;
+// Размеры фото – чтобы ряд первого экрана не вырастал после загрузки (PageSpeed: CLS 0,23 на десктопе «Букетов»).
+const dim = await size(image);
 ---
 <section class:list={['hero container', { 'hero--small': small }]}>
   <div class="hero__grid">
@@ -31,7 +33,7 @@ const { title, accent, text, badge, image, crumbs, buttons = [], features = ['bo
       {buttons.length > 0 && <div class="hero__btns">{buttons.map((b, i) => <Btn {...b} variant={b.variant ?? (i === 0 ? 'white' : 'outline')} flower={b.flower ?? i === 0} />)}</div>}
     </div>
     <div class="hero__photo">
-      <img src={img(image)} srcset={srcset(image)} sizes="(max-width: 1023px) 100vw, 50vw" alt="" fetchpriority="high" />
+      <img src={img(image)} srcset={srcset(image)} sizes="(max-width: 1023px) 100vw, 50vw" width={dim?.width} height={dim?.height} alt="" fetchpriority="high" />
     </div>
   </div>
   {facts ? (
