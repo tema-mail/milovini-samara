@@ -33,7 +33,7 @@ const desc = `${c.h1}: ${cards.length} вариантов от ${min.toLocaleStr
   <section class="section container" id="list">
     <SectionHead title={c.heading} sub={`С доставкой по Самаре – ${cards.length} шт., от ${min.toLocaleString('ru-RU')} ₽`} />
     <CatalogLinks current={c.slug} />
-    <Catalog client:load cards={cards} chips={chips} step={16} />
+    <Catalog client:load cards={cards} chips={chips} step={16} eager={4} />
   </section>
   <FinalCta />
   <ContactCard />
