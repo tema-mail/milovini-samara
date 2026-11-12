@@ -1,4 +1,4 @@
-// Фото, загруженные через админку (data-src/uploads/<имя>.<jpg|png|webp>), → public/img/up/<имя>-480.webp и -1000.webp.
+// Фото, загруженные через админку (data-src/uploads/<имя>.<jpg|png|webp>), → public/img/up/<имя>-360, -480 и -1000.webp.
 // Запускается перед сборкой (npm run build), в т. ч. в GitHub Actions. Уже готовые файлы не пересобираются.
 import { readdir, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -13,7 +13,7 @@ const files = existsSync(SRC) ? (await readdir(SRC)).filter((f) => /\.(jpe?g|png
 let made = 0;
 for (const f of files) {
   const name = f.replace(/\.[^.]+$/, '');
-  for (const w of [480, 1000]) {
+  for (const w of [360, 480, 1000]) {
     const out = path.join(OUT, `${name}-${w}.webp`);
     if (existsSync(out)) continue;
     await sharp(path.join(SRC, f)).rotate().resize({ width: w, withoutEnlargement: true }).webp({ quality: 80 }).toFile(out);

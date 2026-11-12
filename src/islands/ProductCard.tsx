@@ -19,8 +19,8 @@ export default function ProductCard({ p, eager = false }: { p: Card; eager?: boo
     <article class="pc">
       <a class="pc__media" href={href} aria-label={p.title}>
         <img
-          class="pc__img" src={u(p.img + '-480.webp')} srcset={`${u(p.img + '-480.webp')} 480w, ${u(p.img + '-1000.webp')} 1000w`}
-          sizes="(max-width: 1023px) 50vw, 25vw" alt={p.title} loading={eager ? 'eager' : 'lazy'} decoding="async"
+          class="pc__img" src={u(p.img + '-480.webp')} srcset={`${u(p.img + '-360.webp')} 360w, ${u(p.img + '-480.webp')} 480w, ${u(p.img + '-1000.webp')} 1000w`}
+          sizes="(max-width: 1023px) calc(50vw - 21px), (max-width: 1279px) calc(33vw - 40px), 325px" alt={p.title} loading={eager ? 'eager' : 'lazy'} decoding="async"
         />
         {p.img2 && <img class="pc__img2" src={u(p.img2 + '-480.webp')} alt="" loading="lazy" decoding="async" />}
         {p.mark && <span class="pc__mark">{p.mark}</span>}
