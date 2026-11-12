@@ -22,7 +22,7 @@ const dim = p.image ? await sharp(`public${p.image}-1200.webp`).metadata() : nul
     <h1 class="h1 art__title">{p.title}</h1>
     {p.image && (
       <img
-        class="art__img" src={u(p.image + '-1200.webp')} srcset={`${u(p.image + '-600.webp')} 600w, ${u(p.image + '-800.webp')} 800w, ${u(p.image + '-1200.webp')} 1200w`}
+        class="art__img" src={u(p.image + '-1200.webp')} srcset={`${u(p.image + '-600.webp')} 600w, ${u(p.image + '-720.webp')} 720w, ${u(p.image + '-1200.webp')} 1200w`}
         sizes="(max-width: 1023px) calc(100vw - 32px), 820px" width={dim?.width} height={dim?.height} alt="" fetchpriority="high"
       />
     )}
