@@ -126,9 +126,12 @@ p { margin: 0; }
 /* Секции ниже первой браузер не раскладывает, пока они далеко от экрана: шрифты и знак ₽ приходят позже
    и раньше заставляли переложить всю страницу 4 раза (по ~1600 объектов) – на телефоне это 150–280 мс
    блокировки на каждую (Lighthouse-трасса 12.11.2026). Вид не меняется. Секцию с fixed-кнопкой заказа
-   (.of-submit) не трогаем: внутри content-visibility fixed считается от секции. */
-main > section:not(:first-child):not(:has(.of-submit)), .ftr { content-visibility: auto; contain-intrinsic-size: auto 800px; }
-@media (max-width: 1023px) { main > section:not(:first-child):not(:has(.of-submit)), .ftr { contain-intrinsic-size: auto 1100px; } }
+   (.of-submit) не трогаем: внутри content-visibility fixed считается от секции.
+   Оценочная высота – с запасом выше самой высокой секции (главная: до ~1700 px на десктопе, ~2000 на
+   телефоне): если оценка меньше, содержимое нераскрытой секции «наезжает» на соседнюю, и проверка
+   доступности считает кнопки перекрытыми (target-size). Меняется только начальная длина полосы прокрутки. */
+main > section:not(:first-child):not(:has(.of-submit)), .ftr { content-visibility: auto; contain-intrinsic-size: auto 2000px; }
+@media (max-width: 1023px) { main > section:not(:first-child):not(:has(.of-submit)), .ftr { contain-intrinsic-size: auto 2400px; } }
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
 .reveal.is-in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } html { scroll-behavior: auto; } }
