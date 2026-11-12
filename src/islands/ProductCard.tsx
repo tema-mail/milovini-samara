@@ -6,7 +6,8 @@ import { IconBag, IconHeart } from './icons';
 import Points from './Points';
 
 // Карточка товара в сетках. Сердечко – в избранное, «В корзину» – сразу в корзину.
-export default function ProductCard({ p, eager = false }: { p: Card; eager?: boolean }) {
+// Фото сеток всегда ленивые: на всех страницах сетка ниже первого экрана (PageSpeed, 12.11.2026).
+export default function ProductCard({ p }: { p: Card }) {
   // Состояние «в корзине / в избранном» – только после гидратации (в HTML сборки его нет).
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
@@ -20,7 +21,7 @@ export default function ProductCard({ p, eager = false }: { p: Card; eager?: boo
       <a class="pc__media" href={href} aria-label={p.title}>
         <img
           class="pc__img" src={u(p.img + '-480.webp')} srcset={`${u(p.img + '-360.webp')} 360w, ${u(p.img + '-480.webp')} 480w, ${u(p.img + '-1000.webp')} 1000w`}
-          sizes="(max-width: 1023px) calc(50vw - 21px), (max-width: 1279px) calc(33vw - 40px), 325px" alt={p.title} loading={eager ? 'eager' : 'lazy'} decoding="async"
+          sizes="(max-width: 1023px) calc(50vw - 21px), (max-width: 1279px) calc(33vw - 40px), 325px" alt={p.title} loading="lazy" decoding="async"
         />
         {p.img2 && (
           <img

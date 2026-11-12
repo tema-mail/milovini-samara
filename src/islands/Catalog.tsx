@@ -13,10 +13,8 @@ const PRICES = [
   { id: 'p4', title: 'от 7 000 ₽', test: (n: number) => n >= 7000 },
 ];
 
-// eager – сколько первых фото грузить сразу: только для сетки в начале страницы (каталог),
-// на главной и в карточке товара сетка ниже первого экрана и не должна отбирать канал у первого экрана.
-export default function Catalog({ cards, chips, step = 16, sort: showSort = true, prices = true, eager = 0 }: {
-  cards: Card[]; chips?: Chip[]; step?: number; sort?: boolean; prices?: boolean; eager?: number;
+export default function Catalog({ cards, chips, step = 16, sort: showSort = true, prices = true }: {
+  cards: Card[]; chips?: Chip[]; step?: number; sort?: boolean; prices?: boolean;
 }) {
   const [chip, setChip] = useState<string>('all');
   const [sub, setSub] = useState<string>('all');
@@ -92,7 +90,7 @@ export default function Catalog({ cards, chips, step = 16, sort: showSort = true
       )}
 
       <div class="grid" data-products>
-        {list.slice(0, limit).map((p, i) => <ProductCard p={p} eager={i < eager} key={p.id} />)}
+        {list.slice(0, limit).map((p, i) => <ProductCard p={p} key={p.id} />)}
       </div>
       {list.length === 0 && (
         <p class="cat__empty">В этом разделе сейчас нет букетов по выбранной цене. <button type="button" class="link" onClick={() => setPrice('all')}>Показать все цены</button> или <button type="button" class="link" data-lead>попросите флориста собрать</button>.</p>
