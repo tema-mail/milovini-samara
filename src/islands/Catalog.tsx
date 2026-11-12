@@ -90,7 +90,7 @@ export default function Catalog({ cards, chips, step = 16, sort: showSort = true
       )}
 
       <div class="grid" data-products>
-        {list.slice(0, limit).map((p, i) => <ProductCard p={p} key={p.id} />)}
+        {list.slice(0, limit).map((p) => <ProductCard p={p} key={p.id} />)}
       </div>
       {list.length === 0 && (
         <p class="cat__empty">В этом разделе сейчас нет букетов по выбранной цене. <button type="button" class="link" onClick={() => setPrice('all')}>Показать все цены</button> или <button type="button" class="link" data-lead>попросите флориста собрать</button>.</p>
