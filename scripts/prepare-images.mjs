@@ -21,3 +21,25 @@ for (const f of files) {
   }
 }
 console.log(`фото из админки: ${files.length}, новых webp: ${made}`);
+
+// Картинки страниц (public/img/t/<имя>-1600.webp) → <имя>-m800.webp и -m1600.webp для телефона.
+// На телефоне фото первого экрана – полоса высотой 300 px с object-fit: cover по центру, вертикальное фото
+// отдавалось целиком (у «Букетов» 720×1280, 113 КБ). Обрезка по центру до пропорции 0,95 (ширина/высота) –
+// это уже самой узкой полосы (телефон 320 px), так что cover режет тот же кадр, вид не меняется.
+// Горизонтальные и квадратные не обрезаются. PageHero берёт их через <picture> до 1023 px (lib/img.ts, msrcset).
+const T = path.join(ROOT, 'public/img/t');
+let crops = 0;
+for (const f of (existsSync(T) ? await readdir(T) : []).filter((x) => x.endsWith('-1600.webp'))) {
+  const name = f.replace(/-1600\.webp$/, '');
+  for (const w of [800, 1600]) {
+    const out = path.join(T, `${name}-m${w}.webp`);
+    if (existsSync(out)) continue;
+    const src = sharp(path.join(T, f));
+    const { width = 0, height = 0 } = await src.metadata();
+    const ch = Math.min(height, Math.round(width / 0.95));
+    await src.extract({ left: 0, top: Math.round((height - ch) / 2), width, height: ch })
+      .resize({ width: w, withoutEnlargement: true }).webp({ quality: 78 }).toFile(out);
+    crops++;
+  }
+}
+console.log(`картинки страниц для телефона: новых ${crops}`);

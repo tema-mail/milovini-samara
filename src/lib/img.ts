@@ -25,3 +25,10 @@ export async function size(url: string): Promise<{ width: number; height: number
   const m = await sharp(`public${local}-800.webp`).metadata();
   return m.width && m.height ? { width: m.width, height: m.height } : undefined;
 }
+
+/** srcset обрезанного по центру варианта для телефона (scripts/prepare-images.mjs), если он есть. */
+export function msrcset(url: string): string | undefined {
+  const local = M[url];
+  if (!local || /\.(svg|gif)$/.test(local)) return undefined;
+  return `${u(local)}-m800.webp 800w, ${u(local)}-m1600.webp 1600w`;
+}
