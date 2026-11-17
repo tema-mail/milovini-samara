@@ -20,6 +20,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # тесты замка админки (оба входа открывают, неверный – нет)
+      - run: npm test
       # Показная копия: подпапка репозитория и закрыто от индексации (живой сайт клиента – milovinisamara.ru).
       - run: npm run build
         env:
@@ -32,6 +34,9 @@ jobs:
         env:
           ADMIN_LOGIN: ${{ secrets.ADMIN_LOGIN }}
           ADMIN_PASS: ${{ secrets.ADMIN_PASS }}
+          # второй вход – СВЕРХ админ Артёма; нет секретов – один вход владельца и предупреждение
+          SVERH_LOGIN: ${{ secrets.SVERH_LOGIN }}
+          SVERH_PASS: ${{ secrets.SVERH_PASS }}
       - run: touch dist/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
