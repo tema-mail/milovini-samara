@@ -5,8 +5,10 @@
 // ~/.config/milovini-samara/admin-login и admin-pass (600) на маке владельца.
 // Второй вход – СВЕРХ админ Артёма (один на все наши админки): SVERH_LOGIN / SVERH_PASS (секреты Actions) или
 // ~/.config/sverh-admin/dostup.txt (строки «логин: …», «пароль: …»). Нет его – замок на одном входе владельца.
-// Несколько входов: makeRing() – случайный ключ + его копии под ключом каждого входа, sealRing() – коробка v3,
-// открывает её scripts/admin-open.mjs. Схема – ~/Sites/sverh-admin/docs/zamok-dva-vhoda.md.
+// Несколько входов: makeRing() – ключ связки + его копии под ключом каждого входа, sealRing() – коробка v3,
+// открывает её scripts/admin-open.mjs. Ключ связки не случайный: PBKDF2 от пары владельца с постоянной солью проекта
+// (RING_SALT) – между сборками он тот же, и «Оставаться в системе» (в браузере лежит ключ связки, не пароль) не слетает
+// после выкладки. Схема – ~/Sites/sverh-admin/docs/zamok-dva-vhoda.md.
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -14,6 +16,9 @@ import path from 'node:path';
 
 export const ITER = 310000;
 const DIR = path.join(os.homedir(), '.config', 'milovini-samara');
+// Соль ключа связки – постоянная на проект. Ключ меняется со сменой пароля владельца; сменить «v1» –
+// сбросить все запомненные входы разом (если ключ утёк из браузера).
+export const RING_SALT = 'zamok-svyazka-v1:milovini-samara';
 
 export function credentials() {
   const file = (n) => {
@@ -60,10 +65,11 @@ const gcm = (key, iv, buf) => {
   return Buffer.concat([c.update(buf), c.final(), c.getAuthTag()]); // WebCrypto ждёт тег в конце
 };
 
-// Связка ключей: случайный ключ данных + его копия под ключом каждого входа (PBKDF2 считается один раз на сборку)
-export function makeRing(list) {
+// Связка ключей: ключ данных (из пары владельца – первой в списке – и соли проекта) + его копия под ключом каждого
+// входа; соли и iv копий случайные. PBKDF2 считается один раз на сборку
+export function makeRing(list, salt = RING_SALT) {
   if (!list.length) throw new Error('нет ни одного входа');
-  const key = crypto.randomBytes(32);
+  const key = crypto.pbkdf2Sync(list[0], salt, ITER, 32, 'sha256');
   const keys = list.map((secret) => {
     const salt = crypto.randomBytes(16);
     const iv = crypto.randomBytes(12);

@@ -3,15 +3,16 @@
 // админку EV SIBIR, server/admin.py login_page). После входа браузер расшифровывает страницу у себя;
 // вход помнится до закрытия вкладки (sessionStorage), с галочкой «Оставаться в системе» – и после (localStorage,
 // правило владельца 17.10.2026 для всех кабинетов, образец – TEYES). «Выйти» в шапке сбрасывает оба.
+// В хранилище – ключ связки этой админки, не логин и пароль (17.11.2026: общий адрес tema-mail.github.io).
 // Владелец 16.10.2026: «любой ЛК закрыт по логину и паролю… не конкретный внутренний, а весь».
 // Запуск – в GitHub Actions после сборки (секреты ADMIN_LOGIN, ADMIN_PASS); без них сборка падает,
 // чтобы админка не ушла в публикацию открытой. Второй вход – СВЕРХ админ (SVERH_LOGIN, SVERH_PASS): страница
-// под случайным ключом, его копии – под каждым входом (admin-crypto.mjs makeRing); без СВЕРХ – один вход и предупреждение.
+// под ключом связки, его копии – под каждым входом (admin-crypto.mjs makeRing); без СВЕРХ – один вход и предупреждение.
 // LOCK_DIST – другая папка сборки (для теста), по умолчанию dist.
 import fs from 'node:fs';
 import path from 'node:path';
 import { makeRing, sealRing, secrets } from './admin-crypto.mjs';
-import { openBox } from './admin-open.mjs';
+import { gateScript } from './admin-open.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DIR = path.join(process.env.LOCK_DIST || path.join(ROOT, 'dist'), 'admin');
@@ -24,23 +25,9 @@ const GATE_CSS = `.login{max-width:380px;margin:12vh auto;background:#fff;border
 .login .keep{display:flex;align-items:center;gap:8px;margin:0 0 14px;font-size:14px;color:#1e1e1e;cursor:pointer}
 .login .keep input{width:18px;height:18px;margin:0}`;
 
-// Расшифровка в браузере: openBox из admin-open.mjs (пара пробуется по всем входам); скрипты страницы запускаются заново,
-// потому что разметка, вставленная через innerHTML, свои <script> не выполняет
-const GATE_JS = `(function(){
-var K='mv_admin_auth',L='mv_admin_keep',box=JSON.parse(document.getElementById('lock-data').textContent),f=document.getElementById('lock-form'),err=f.querySelector('.err');
-var openBox=${openBox.toString()};
-async function open(login,pass,quiet,keep){
-  try{
-    var html=await openBox(box,login,pass);
-  }catch(e){try{sessionStorage.removeItem(K);if(quiet)localStorage.removeItem(L)}catch(_){} if(!quiet)err.textContent='Неверный логин или пароль';return}
-  var a=JSON.stringify({login:login,pass:pass});
-  try{sessionStorage.setItem(K,a);if(keep)localStorage.setItem(L,a)}catch(_){}
-  document.body.innerHTML=html;
-  document.body.querySelectorAll('script').forEach(function(o){var s=document.createElement('script');for(var i=0;i<o.attributes.length;i++)s.setAttribute(o.attributes[i].name,o.attributes[i].value);s.textContent=o.textContent;o.replaceWith(s)});
-}
-f.addEventListener('submit',function(e){e.preventDefault();err.textContent='Проверяю…';open(f.login.value.trim(),f.pass.value,false,f.keep.checked)});
-try{var a=JSON.parse(sessionStorage.getItem(K)||localStorage.getItem(L)||'null');if(a)open(a.login,a.pass,true,false)}catch(_){}
-})();`;
+// Форма входа и расшифровка в браузере – общий код admin-open.mjs (gateScript): в хранилище браузера кладётся
+// ключ связки, а не логин и пароль
+const GATE_JS = gateScript('mv_admin_auth', 'mv_admin_keep');
 
 const gate = (data) => `<body class="adm"><style>${GATE_CSS}</style>
 <form class="login" id="lock-form" autocomplete="on"><h1>MILOVINI</h1><p>Личный кабинет магазина</p>
